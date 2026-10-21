@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `dkit perms --diff` — compare two permission integers and list what was removed,
+  added and left unchanged, with unknown bits reported and `--json` support
+  (@arvindkumar-ship-it, #15).
+
 ## [0.1.1] - 2026-10-21
 
 ### Added
