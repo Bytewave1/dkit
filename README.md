@@ -201,6 +201,38 @@ $ echo $?
 2
 ```
 
+### Compare two permission values with `--diff`
+
+`--diff` compares the number with a second one and sorts the bits into three
+groups: only in the first value (**removed**), only in the second (**added**),
+and in both (**unchanged**, shown as a count).
+
+```console
+$ dkit perms 268437504 --diff 274878286912
+Permissions 268437504 -> 274878286912
+  hex 0x0000000010000800 -> 0x000000400005cc40
+
+Removed (1)
+  MANAGE_ROLES                         0x0000000010000000  [2FA, T/V/S]
+
+Added (7)
+  ADD_REACTIONS                        0x0000000000000040  [T/V/S]
+  VIEW_CHANNEL                         0x0000000000000400  [T/V/S]
+  EMBED_LINKS                          0x0000000000004000  [T/V/S]
+  ATTACH_FILES                         0x0000000000008000  [T/V/S]
+  READ_MESSAGE_HISTORY                 0x0000000000010000  [T/V/S]
+  USE_EXTERNAL_EMOJIS                  0x0000000000040000  [T/V/S]
+  SEND_MESSAGES_IN_THREADS             0x0000004000000000  [T]
+
+Unchanged (1)
+```
+
+Both values accept the same formats as the plain decode (`2048`, `0x800`).
+Identical values are reported as such. Bits `dkit` has no name for are listed as
+`unknown bits` inside the group they fall in, with a warning on stderr, rather
+than being dropped. `--diff` cannot be combined with `--names`, and invalid
+input exits with code 2.
+
 ### `dkit invite` — build an OAuth2 invite URL
 
 ```console
@@ -313,6 +345,81 @@ $ dkit --json perms --names SEND_MESSAGES,MANAGE_ROLES
   ],
   "names": ["SEND_MESSAGES", "MANAGE_ROLES"],
   "unknown_bits": [],
+  "warnings": [],
+  "source": {
+    "source": "https://github.com/discord/discord-api-docs/blob/main/developers/topics/permissions.mdx",
+    "source_rendered": "https://discord.com/developers/docs/topics/permissions",
+    "last_verified": "2026-10-20"
+  }
+}
+```
+
+`--diff` has its own payload. Each group (`removed`, `added`, `unchanged`)
+carries the same fields as a decode, and every permission integer is a string:
+
+```console
+$ dkit --json perms 5 --diff 6
+{
+  "first": {
+    "value": "5",
+    "hex": "0x0000000000000005"
+  },
+  "second": {
+    "value": "6",
+    "hex": "0x0000000000000006"
+  },
+  "identical": false,
+  "removed": {
+    "value": "1",
+    "hex": "0x0000000000000001",
+    "bit_count": 1,
+    "permissions": [
+      {
+        "name": "CREATE_INSTANT_INVITE",
+        "bit": 0,
+        "value": "1",
+        "hex": "0x0000000000000001",
+        "description": "Allows creation of instant invites",
+        "channel_types": ["T", "V", "S"]
+      }
+    ],
+    "names": ["CREATE_INSTANT_INVITE"],
+    "unknown_bits": []
+  },
+  "added": {
+    "value": "2",
+    "hex": "0x0000000000000002",
+    "bit_count": 1,
+    "permissions": [
+      {
+        "name": "KICK_MEMBERS",
+        "bit": 1,
+        "value": "2",
+        "hex": "0x0000000000000002",
+        "description": "Allows kicking members",
+        "requires_2fa": true
+      }
+    ],
+    "names": ["KICK_MEMBERS"],
+    "unknown_bits": []
+  },
+  "unchanged": {
+    "value": "4",
+    "hex": "0x0000000000000004",
+    "bit_count": 1,
+    "permissions": [
+      {
+        "name": "BAN_MEMBERS",
+        "bit": 2,
+        "value": "4",
+        "hex": "0x0000000000000004",
+        "description": "Allows banning members",
+        "requires_2fa": true
+      }
+    ],
+    "names": ["BAN_MEMBERS"],
+    "unknown_bits": []
+  },
   "warnings": [],
   "source": {
     "source": "https://github.com/discord/discord-api-docs/blob/main/developers/topics/permissions.mdx",
