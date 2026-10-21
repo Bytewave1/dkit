@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update the checkout and Python setup actions to releases that run on Node 24.
 
+### Added
+
+- `dkit perms --diff` — compare two permission integers and list what was removed,
+  added and left unchanged, with unknown bits reported and `--json` support
+  (@arvindkumar-ship-it, #15).
+- Add property-based round-trip tests for `FlagSet` (permissions and intents)
+  using Hypothesis, a dev-only dependency (@Samyakjain-07, #22).
+
 ## [0.1.1] - 2026-10-21
 
 ### Added
@@ -26,9 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Document the tested platform matrix and cover ANSI-free output when stdout is
   not a TTY.
 
-- Update the checkout and Python setup actions to releases that run on Node 24.
-- Add property-based round-trip tests for `FlagSet` (permissions and intents)
-  using Hypothesis, which is a dev-only dependency (@Samyakjain-07).
 ### Documentation
 
 - Update `docs/ISSUES.md`: replace old package name `dkit` with `dkit-cli` in
