@@ -272,6 +272,16 @@ Identical values are reported as such. Bits `dkit` has no name for are listed as
 than being dropped. `--diff` cannot be combined with `--names`, and invalid
 input exits with code 2.
 
+### List every known permission with `--list`
+
+`--list` prints every permission from the bundled dataset in bit order, with its
+bit position, name, 64-bit hex value and decimal value:
+
+```console
+$ dkit perms --list
+$ dkit perms --list --json
+```
+
 ### `dkit invite` — build an OAuth2 invite URL
 
 ```console

@@ -56,10 +56,33 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
         metavar="OTHER",
         help="compare NUMBER with a second permissions integer, e.g. 274878286912 or 0x800",
     )
+    parser.add_argument(
+        "--list",
+        action="store_true",
+        help="list every known permission with its bit value",
+    )
 
 
 def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
     """Execute ``dkit perms``."""
+    if args.list:
+        if args.value is not None:
+            raise UsageError(
+                "--list cannot be combined with a permissions number",
+                hint="list every permission, or decode a number, but not both",
+            )
+        if args.names is not None:
+            raise UsageError(
+                "--list cannot be combined with --names",
+                hint="list every permission, or encode names, but not both",
+            )
+        if args.diff is not None:
+            raise UsageError(
+                "--list cannot be combined with --diff",
+                hint="list every permission, or compare two numbers, but not both",
+            )
+        return _list(permission_flags(), out)
+
     if args.diff is not None and args.names is not None:
         raise UsageError(
             "--diff cannot be combined with --names",
@@ -78,7 +101,9 @@ def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
     if not args.names and args.value is None:
         raise UsageError(
             "no permissions value given",
-            hint="examples: dkit perms 2048 | dkit perms --names SEND_MESSAGES",
+            hint=(
+                "examples: dkit perms 2048 | dkit perms --names SEND_MESSAGES | dkit perms --list"
+            ),
         )
 
     flags = permission_flags()
@@ -237,6 +262,35 @@ def _diff(raw_first: str, raw_second: str, flags: FlagSet, out: Printer) -> dict
     }
 
 
+def _list(flags: FlagSet, out: Printer) -> dict[str, Any]:
+    sorted_flags = sorted(flags, key=lambda f: f.bit)
+
+    out.heading(f"Permissions ({len(sorted_flags)})")
+    out.line()
+    for flag in sorted_flags:
+        marks = []
+        if flag.requires_2fa:
+            marks.append("2FA")
+        if flag.channel_types:
+            marks.append("/".join(flag.channel_types))
+        suffix = f"  {out.style('[' + ', '.join(marks) + ']', 'dim')}" if marks else ""
+        bit_str = out.style(f"bit {flag.bit:>2}", "dim")
+        out.line(
+            f"  {bit_str}  {out.style(flag.name.ljust(36), 'green')} {flag.hex}"
+            f"  {flag.value}{suffix}"
+        )
+    out.line()
+    out.note("  Markers: [T/V/S] = channel scope (Text/Voice/Stage), [2FA] = requires 2FA.")
+    verified = data.provenance("permissions")["last_verified"]
+    out.note(f"  Data from the official table (verified {verified}).")
+
+    return {
+        "permissions": [flag.as_dict() for flag in sorted_flags],
+        "total": len(sorted_flags),
+        "source": data.provenance("permissions"),
+    }
+
+
 COMMAND = Command(
     name="perms",
     help="decode a permissions integer, or build one from names",
@@ -249,5 +303,6 @@ COMMAND = Command(
         "  dkit perms 0x800\n"
         "  dkit perms --names SEND_MESSAGES,MANAGE_ROLES\n"
         "  dkit perms 268437504 --diff 274878286912\n"
+        "  dkit perms --list\n"
     ),
 )

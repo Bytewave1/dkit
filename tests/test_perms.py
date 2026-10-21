@@ -272,3 +272,68 @@ def test_cli_diff_invalid_input_exits_with_code_2(cli, argv: tuple[str, ...]) ->
     result = cli(*argv)
     assert result.exit_code == 2
     assert result.stderr.startswith("error:")
+
+
+def test_cli_list_returns_every_permission_in_bit_order(cli) -> None:
+    payload = cli("--json", "perms", "--list").json
+    permissions = payload["permissions"]
+    assert payload["total"] == len(permissions) == len(permission_flags())
+
+    bits = [item["bit"] for item in permissions]
+    assert bits == sorted(bits)
+
+    # Check a permission with value exceeding 32 bits (2**32 = 4294967296)
+    high_bit_perm = next(p for p in permissions if p["bit"] > 32)
+    assert int(high_bit_perm["value"]) > 2**32
+    assert high_bit_perm["value"] == str(1 << high_bit_perm["bit"])
+    assert high_bit_perm["hex"] == f"0x{1 << high_bit_perm['bit']:016x}"
+
+    # Stable schema checks
+    assert "source" in payload
+    assert payload["source"]["source"].endswith("permissions.mdx")
+    for perm in permissions:
+        assert isinstance(perm["name"], str)
+        assert isinstance(perm["bit"], int)
+        assert isinstance(perm["value"], str)
+        assert isinstance(perm["hex"], str)
+        assert isinstance(perm["description"], str)
+
+
+def test_cli_list_text_output(cli) -> None:
+    result = cli("perms", "--list")
+    assert result.exit_code == 0
+    assert f"Permissions ({len(permission_flags())})" in result.stdout
+    assert "Markers: [T/V/S] = channel scope" in result.stdout
+    assert "SEND_MESSAGES" in result.stdout
+    assert "0x0000000000000800" in result.stdout
+    assert "CREATE_INSTANT_INVITE" in result.stdout
+
+
+@pytest.mark.parametrize(
+    "argv, message",
+    [
+        (("perms", "--list", "2048"), "--list cannot be combined with a permissions number"),
+        (("perms", "--list", "--names", "SEND_MESSAGES"), "--list cannot be combined with --names"),
+        (("perms", "--list", "--diff", "2048"), "--list cannot be combined with --diff"),
+    ],
+)
+def test_cli_list_conflicting_options_exit_code_2(cli, argv: tuple[str, ...], message: str) -> None:
+    result = cli(*argv)
+    assert result.exit_code == 2
+    assert message in result.stderr
+
+
+def test_cli_list_sorts_unsorted_flags(cli, monkeypatch) -> None:
+    flags = list(permission_flags())
+
+    class UnsortedFlagSet:
+        def __iter__(self):
+            return iter(reversed(flags))
+
+    monkeypatch.setattr("dkit.commands.perms.permission_flags", lambda: UnsortedFlagSet())
+
+    payload = cli("--json", "perms", "--list").json
+    bits = [item["bit"] for item in payload["permissions"]]
+    assert bits == sorted(bits)
+    assert bits[0] == 0
+    assert bits[-1] == max(f.bit for f in flags)
