@@ -29,7 +29,7 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=7.4", "ruff>=0.6", "hypothesis>=6.100"]
+dev = ["pytest>=7.4", "ruff>=0.6", "hypothesis>=6.100", "pytest-cov>=5.0"]
 
 [project.urls]
 Homepage = "https://github.com/Bytewave1/dkit"
@@ -49,6 +49,18 @@ dkit = ["data/*.json", "py.typed"]
 minversion = "7.0"
 testpaths = ["tests"]
 addopts = "-ra --strict-markers"
+
+[tool.coverage.run]
+source_pkgs = ["dkit"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 100
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "raise NotImplementedError",
+]
 
 [tool.ruff]
 line-length = 100
