@@ -558,3 +558,35 @@ access at runtime**.
 
 `dkit` is an unofficial tool and is not affiliated with or endorsed by Discord.
 "Discord" is a trademark of Discord Inc.
+
+
+## Shell completion
+
+Print an offline completion script and load it into the current shell:
+
+```bash
+# Bash
+eval "$(dkit completion bash)"
+
+# Zsh (after the completion system is initialized)
+autoload -Uz compinit && compinit
+source <(dkit completion zsh)
+```
+
+```fish
+# Fish
+dkit completion fish | source
+```
+
+These commands enable completion for the current shell only. To keep it between
+sessions, add the corresponding line to your own shell configuration. Generating
+a script does not edit shell configuration or install anything. Keep `dkit` on
+PATH while using completion.
+
+Completion offers registered subcommands and flags, permission names after
+`perms --names`, positional intent names, and scopes after `invite --scopes`.
+It also supports permission names after `invite --perms`, comma-separated name
+lists, and `--names=VALUE` / `--scopes=VALUE`. Names are read from the bundled data
+at completion time, not duplicated in shell scripts. No token, network request
+or runtime dependency is needed. `dkit --json completion bash` returns the script
+in a JSON payload instead of executable text.

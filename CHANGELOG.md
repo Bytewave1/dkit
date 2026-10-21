@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `dkit completion bash|zsh|fish` for offline command, flag and bundled-name completion.
 - `dkit snowflake` — read IDs from stdin when piped or when `-` is passed (#24).
 - `dkit locales` — list Discord locale codes, look one up exactly with a
   "did you mean" suggestion, or search by language name, with `--json` support

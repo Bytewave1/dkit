@@ -7,7 +7,7 @@ To add a command, drop a module next to this one that exposes a
 
 from __future__ import annotations
 
-from dkit.commands import intents, invite, locales, perms, snowflake, timestamp
+from dkit.commands import completion, intents, invite, locales, perms, snowflake, timestamp
 from dkit.core.registry import Command
 
 #: Every command the CLI exposes, in the order they appear in ``--help``.
@@ -18,6 +18,7 @@ COMMANDS: tuple[Command, ...] = (
     intents.COMMAND,
     timestamp.COMMAND,
     locales.COMMAND,
+    completion.COMMAND,
 )
 
 __all__ = ["COMMANDS"]
