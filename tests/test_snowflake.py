@@ -50,6 +50,25 @@ def test_decode_handles_the_largest_possible_snowflake() -> None:
     assert result["discord_ms"] == (1 << 42) - 1
 
 
+def test_cli_accepts_zero_and_maximum_snowflake_ids(cli) -> None:
+    assert cli("snowflake", "0").exit_code == 0
+    assert cli("snowflake", str(MAX_SNOWFLAKE)).exit_code == 0
+
+
+@pytest.mark.parametrize(
+    "value, message",
+    [
+        (str(MAX_SNOWFLAKE + 1), "too large to be a 64-bit value"),
+        ("-1", "must not be negative"),
+    ],
+)
+def test_cli_reports_snowflake_boundary_errors(cli, value: str, message: str) -> None:
+    result = cli("snowflake", value)
+    assert result.exit_code == 2
+    assert result.stdout == ""
+    assert message in result.stderr
+
+
 def test_encode_matches_the_documented_formula() -> None:
     moment = parse_datetime("2016-04-30T11:18:25.796Z")
     assert encode(moment) == (1462015105796 - 1420070400000) << 22
