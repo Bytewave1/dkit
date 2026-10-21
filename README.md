@@ -69,6 +69,47 @@ pip install .
 
 Both give you a `dkit` command. You can also run it as `python -m dkit`.
 
+
+## Troubleshooting
+
+After `pip install dkit-cli`, some users (especially on Windows) see
+`'dkit' is not recognized as a command`. This happens when the directory that
+contains the installed script is not on your PATH.
+
+- **`python -m dkit` works everywhere** and needs no PATH change:
+
+  ```console
+  python -m dkit --version
+  ```
+
+- **Add the scripts folder to PATH** (optional):
+
+  Find your user base with:
+
+  ```console
+  python -m site --user-base
+  ```
+
+  On Windows the scripts live in the `Scripts` subfolder of that directory;
+  on macOS and Linux they live in `bin`. Add that folder to your PATH, then
+  open a new terminal.
+
+- **Prefer pipx for command-line tools**:
+
+  ```console
+  pipx install dkit-cli
+  ```
+
+  [pipx](https://pipx.pypa.io/) installs each tool in its own isolated
+  environment and automatically puts the command on your PATH.
+
+- **Check what is installed**:
+
+  ```console
+  dkit --version
+  pip show dkit-cli
+  ```
+
 ## Usage
 
 ```console
