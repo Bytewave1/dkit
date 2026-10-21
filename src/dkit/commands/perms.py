@@ -14,8 +14,9 @@ from dkit.core.registry import Command
 
 DESCRIPTION = """\
 Decode a Discord permissions integer into permission names, or calculate the
-integer for a list of names. Permission values exceed 32 bits, so every value
-is handled as an arbitrary-precision Python integer.
+integer for a list of names, or compare two permissions integers with --diff.
+Permission values exceed 32 bits, so every value is handled as an
+arbitrary-precision Python integer.
 """
 
 
@@ -50,10 +51,25 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
         metavar="NAMES",
         help="comma-separated permission names to combine into an integer",
     )
+    parser.add_argument(
+        "--diff",
+        metavar="OTHER",
+        help="compare NUMBER with a second permissions integer, e.g. 274878286912 or 0x800",
+    )
 
 
 def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
     """Execute ``dkit perms``."""
+    if args.diff is not None and args.names is not None:
+        raise UsageError(
+            "--diff cannot be combined with --names",
+            hint="compare two numbers, or encode names, but not both at once",
+        )
+    if args.diff is not None and args.value is None:
+        raise UsageError(
+            "--diff needs a permissions number to compare against",
+            hint="example: dkit perms 268437504 --diff 274878286912",
+        )
     if args.names and args.value is not None:
         raise UsageError(
             "--names cannot be combined with a permissions number",
@@ -66,6 +82,8 @@ def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
         )
 
     flags = permission_flags()
+    if args.diff is not None:
+        return _diff(args.value, args.diff, flags, out)
     if args.names:
         return _encode(args.names, flags, out)
     return _decode(args.value, flags, out)
@@ -152,6 +170,73 @@ def _encode(raw: str, flags: FlagSet, out: Printer) -> dict[str, Any]:
     return _payload(value, matched, warnings, flags)
 
 
+def _group_payload(value: int, flags: FlagSet) -> dict[str, Any]:
+    matched = flags.flags_in(value)
+    return {
+        "value": str(value),
+        "hex": f"0x{value:016x}",
+        "bit_count": len(matched),
+        "permissions": [flag.as_dict() for flag in matched],
+        "names": [flag.name for flag in matched],
+        "unknown_bits": flags.unknown_bits(value),
+    }
+
+
+def _render_group(
+    title: str, value: int, flags: FlagSet, out: Printer, *, color: str, list_flags: bool = True
+) -> None:
+    matched = flags.flags_in(value)
+    unknown = flags.unknown_bits(value)
+    out.line()
+    out.line(out.style(f"{title} ({len(matched)})", color, "bold"))
+    if list_flags:
+        for flag in matched:
+            _render(flag, out)
+        if not matched and not unknown:
+            out.note("  (none)")
+    if unknown:
+        out.line(f"  unknown bits: {', '.join(str(bit) for bit in unknown)}")
+
+
+def _diff(raw_first: str, raw_second: str, flags: FlagSet, out: Printer) -> dict[str, Any]:
+    first = parse_int(raw_first, what="permissions value")
+    second = parse_int(raw_second, what="--diff value")
+
+    removed = first & ~second  # only in the first value
+    added = second & ~first  # only in the second value
+    unchanged = first & second  # in both values
+
+    warnings: list[str] = []
+    for label, value in (("removed", removed), ("added", added), ("unchanged", unchanged)):
+        unknown = flags.unknown_bits(value)
+        if unknown:
+            warnings.append(
+                f"{label} part contains bits dkit has no name for: "
+                + ", ".join(str(bit) for bit in unknown)
+                + f" (data last verified {data.provenance('permissions')['last_verified']})"
+            )
+
+    out.heading(f"Permissions {first} -> {second}")
+    out.note(f"  hex {first:#018x} -> {second:#018x}")
+    if first == second:
+        out.note("  (identical values, no differences)")
+    _render_group("Removed", removed, flags, out, color="red")
+    _render_group("Added", added, flags, out, color="green")
+    _render_group("Unchanged", unchanged, flags, out, color="dim", list_flags=False)
+    out.warnings(warnings)
+
+    return {
+        "first": {"value": str(first), "hex": f"0x{first:016x}"},
+        "second": {"value": str(second), "hex": f"0x{second:016x}"},
+        "identical": first == second,
+        "removed": _group_payload(removed, flags),
+        "added": _group_payload(added, flags),
+        "unchanged": _group_payload(unchanged, flags),
+        "warnings": warnings,
+        "source": data.provenance("permissions"),
+    }
+
+
 COMMAND = Command(
     name="perms",
     help="decode a permissions integer, or build one from names",
@@ -163,5 +248,6 @@ COMMAND = Command(
         "  dkit perms 2048\n"
         "  dkit perms 0x800\n"
         "  dkit perms --names SEND_MESSAGES,MANAGE_ROLES\n"
+        "  dkit perms 268437504 --diff 274878286912\n"
     ),
 )
