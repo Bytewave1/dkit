@@ -78,10 +78,13 @@ Python instead. This does not require changing `PATH`:
 python -m dkit --version
 ```
 
-For a user install, `python -m site --user-base` prints the directory that
-contains Python's user files. The command-line scripts are in its `bin`
-subdirectory on macOS and Linux, or its `Scripts` subdirectory on Windows. Add
-that scripts directory to your `PATH`, then open a new terminal.
+To find the scripts directory for a user install, run:
+
+```console
+python -c "import sysconfig; print(sysconfig.get_path('scripts', sysconfig.get_preferred_scheme('user')))"
+```
+
+Add the printed directory to your `PATH`, then open a new terminal.
 
 Alternatively, [`pipx`](https://pipx.pypa.io/) installs command-line tools in
 isolated environments and makes their commands available on `PATH`:
