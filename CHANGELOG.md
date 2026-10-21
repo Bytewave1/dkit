@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `dkit locales` — list Discord locale codes, look one up exactly with a
+  "did you mean" suggestion, or search by language name, with `--json` support
+  (@arvindkumar-ship-it, #3).
 - `dkit perms --diff` — compare two permission integers and list what was removed,
   added and left unchanged, with unknown bits reported and `--json` support
   (@arvindkumar-ship-it, #15).
