@@ -211,3 +211,14 @@ def test_cli_snowflake_stdin_empty_exits_with_code_2(cli, monkeypatch) -> None:
     result = cli("snowflake")
     assert result.exit_code == 2
     assert "no snowflake ID given" in result.stderr
+
+
+def test_is_terminal_exception_returns_false(monkeypatch) -> None:
+    from dkit.commands.snowflake import _is_terminal
+
+    class BrokenStdin:
+        def isatty(self):
+            raise RuntimeError("no tty")
+
+    monkeypatch.setattr("sys.stdin", BrokenStdin())
+    assert _is_terminal() is False

@@ -67,6 +67,11 @@ def test_resolve_permissions_from_names_and_numbers() -> None:
     assert resolve_permissions(None) == (None, [])
 
 
+def test_resolve_permissions_empty_string_raises() -> None:
+    with pytest.raises(UsageError, match="--perms did not contain any permission names"):
+        resolve_permissions(" , ")
+
+
 # --- CLI behaviour ------------------------------------------------------
 
 

@@ -219,3 +219,13 @@ def test_no_command_prompts_for_input(cli, monkeypatch) -> None:
         ("locales", "de"),
     ):
         assert cli(*argv).exit_code == EXIT_OK
+
+
+def test_main_module_execution(monkeypatch, capsys) -> None:
+    import runpy
+
+    monkeypatch.setattr("sys.argv", ["dkit", "--version"])
+    with pytest.raises(SystemExit) as excinfo:
+        runpy.run_module("dkit", run_name="__main__")
+    assert excinfo.value.code == EXIT_OK
+    assert __version__ in capsys.readouterr().out
