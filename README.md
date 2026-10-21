@@ -115,6 +115,7 @@ positional arguments:
     invite     build an OAuth2 invite URL for your bot
     intents    convert gateway intent names to the integer and back
     timestamp  format a timestamp as a Discord <t:...> tag
+    locales    look up Discord locale codes
 
 options:
   -h, --help   show this help message and exit
@@ -347,6 +348,33 @@ $ dkit timestamp 2026-10-20T08:30:00Z --style R
 $ dkit timestamp --from-snowflake 175928847299117063
 ```
 
+### `dkit locales` — Discord locale codes
+
+```console
+$ dkit locales de
+Locale
+  Code         de
+  Language     German
+
+  Codes are exact and case-sensitive: en-US, not en_US or en.
+  Data comes from the official table (verified 2026-10-21).
+```
+
+With no argument it lists every locale. `--search` matches the language name,
+ignoring case, and a code that does not exist gets a suggestion:
+
+```console
+$ dkit locales --search portug
+Locales matching 'portug' (1)
+  pt-BR  Portuguese, Brazilian
+
+  Codes are exact and case-sensitive: en-US, not en_US or en.
+  Data comes from the official table (verified 2026-10-21).
+$ dkit locales en_US
+error: unknown locale: 'en_US'
+  did you mean en-US?
+```
+
 ### JSON output
 
 ```console
@@ -477,6 +505,7 @@ No Discord constant is hard-coded in logic. They all live in
 | `snowflake.json` | Discord epoch and the snowflake bit layout | [reference#snowflakes](https://discord.com/developers/docs/reference#snowflakes) |
 | `oauth2.json` | Authorization URL and the 29 OAuth2 scopes | [topics/oauth2](https://discord.com/developers/docs/topics/oauth2) |
 | `timestamp_styles.json` | The nine `<t:...>` timestamp styles and their examples | [reference#message-formatting-timestamp-styles](https://discord.com/developers/docs/reference#message-formatting-timestamp-styles) |
+| `locales.json` | The 32 locale codes and their language names | [reference#locales](https://discord.com/developers/docs/reference#locales) |
 
 Each file records a `source` URL and a `last_verified` date. Two details worth
 knowing, both faithful to the official tables:
