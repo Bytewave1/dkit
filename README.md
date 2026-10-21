@@ -353,7 +353,12 @@ creation time of an ID instead of a timestamp:
 ```console
 $ dkit timestamp 2026-10-20T08:30:00Z --style R
 $ dkit timestamp --from-snowflake 175928847299117063
+$ dkit timestamp now
+$ dkit timestamp now --style R
 ```
+
+Pass `now` (case-insensitive) to format the current UTC time, truncated to whole
+seconds.
 
 ### `dkit locales` — Discord locale codes
 

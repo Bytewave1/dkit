@@ -33,7 +33,10 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
         "value",
         metavar="TIMESTAMP",
         nargs="?",
-        help="an ISO-8601 timestamp to format, e.g. 2026-10-20T08:30:00Z",
+        help=(
+            "an ISO-8601 timestamp to format, or 'now' for the current time, "
+            "e.g. 2026-10-20T08:30:00Z"
+        ),
     )
     parser.add_argument(
         "--style",
@@ -58,7 +61,8 @@ def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
         raise UsageError(
             "no timestamp given",
             hint=(
-                "examples: dkit timestamp 2026-10-20T08:30:00Z | "
+                "examples: dkit timestamp now | "
+                "dkit timestamp 2026-10-20T08:30:00Z | "
                 "dkit timestamp --from-snowflake 175928847299117063"
             ),
         )
@@ -96,11 +100,18 @@ def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
     }
 
 
+def _current_time() -> datetime:
+    """Return the current UTC time truncated to whole seconds."""
+    return datetime.now(timezone.utc).replace(microsecond=0)
+
+
 def _moment(args: argparse.Namespace) -> datetime:
     """Resolve TIMESTAMP or --from-snowflake into a UTC datetime."""
     if args.from_snowflake is not None:
         decoded = decode(parse_snowflake(args.from_snowflake))
         return datetime.fromtimestamp(decoded["unix_ms"] / 1000, tz=timezone.utc)
+    if args.value is not None and args.value.strip().lower() == "now":
+        return _current_time()
     return parse_datetime(args.value, what="timestamp")
 
 
@@ -132,6 +143,8 @@ COMMAND = Command(
     run=run,
     epilog=(
         "examples:\n"
+        "  dkit timestamp now\n"
+        "  dkit timestamp now --style R\n"
         "  dkit timestamp 2026-10-20T08:30:00Z\n"
         "  dkit timestamp 2026-10-20T08:30:00Z --style R\n"
         "  dkit timestamp --from-snowflake 175928847299117063\n"

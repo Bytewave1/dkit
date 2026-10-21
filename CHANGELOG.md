@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `dkit timestamp now` — format the current UTC time truncated to whole seconds,
+  case-insensitively, with `--style` and `--json` support (#26).
 - `dkit channels` — look up Discord channel types by integer value or name, or list all types with `--json` support (#1).
 - `dkit snowflake` — read IDs from stdin when piped or when `-` is passed (#24).
 - `dkit locales` — list Discord locale codes, look one up exactly with a
