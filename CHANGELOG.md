@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Document the tested platform matrix and cover ANSI-free output when stdout is
   not a TTY.
 
+- Update the checkout and Python setup actions to releases that run on Node 24.
+- Add property-based round-trip tests for `FlagSet` (permissions and intents)
+  using Hypothesis, which is a dev-only dependency (@Samyakjain-07).
 ### Documentation
 
 - Update `docs/ISSUES.md`: replace old package name `dkit` with `dkit-cli` in
