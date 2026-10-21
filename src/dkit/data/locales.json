@@ -1,0 +1,136 @@
+{
+  "_comment": "Locales accepted by Discord for localised command names and responses. Codes are exact and case-sensitive; order follows the official table.",
+  "source": "https://github.com/discord/discord-api-docs/blob/main/developers/reference.mdx",
+  "source_rendered": "https://discord.com/developers/docs/reference#locales",
+  "last_verified": "2026-10-21",
+  "locales": [
+    {
+      "code": "id",
+      "name": "Indonesian"
+    },
+    {
+      "code": "da",
+      "name": "Danish"
+    },
+    {
+      "code": "de",
+      "name": "German"
+    },
+    {
+      "code": "en-GB",
+      "name": "English, UK"
+    },
+    {
+      "code": "en-US",
+      "name": "English, US"
+    },
+    {
+      "code": "es-ES",
+      "name": "Spanish"
+    },
+    {
+      "code": "es-419",
+      "name": "Spanish, LATAM"
+    },
+    {
+      "code": "fr",
+      "name": "French"
+    },
+    {
+      "code": "hr",
+      "name": "Croatian"
+    },
+    {
+      "code": "it",
+      "name": "Italian"
+    },
+    {
+      "code": "lt",
+      "name": "Lithuanian"
+    },
+    {
+      "code": "hu",
+      "name": "Hungarian"
+    },
+    {
+      "code": "nl",
+      "name": "Dutch"
+    },
+    {
+      "code": "no",
+      "name": "Norwegian"
+    },
+    {
+      "code": "pl",
+      "name": "Polish"
+    },
+    {
+      "code": "pt-BR",
+      "name": "Portuguese, Brazilian"
+    },
+    {
+      "code": "ro",
+      "name": "Romanian, Romania"
+    },
+    {
+      "code": "fi",
+      "name": "Finnish"
+    },
+    {
+      "code": "sv-SE",
+      "name": "Swedish"
+    },
+    {
+      "code": "vi",
+      "name": "Vietnamese"
+    },
+    {
+      "code": "tr",
+      "name": "Turkish"
+    },
+    {
+      "code": "cs",
+      "name": "Czech"
+    },
+    {
+      "code": "el",
+      "name": "Greek"
+    },
+    {
+      "code": "bg",
+      "name": "Bulgarian"
+    },
+    {
+      "code": "ru",
+      "name": "Russian"
+    },
+    {
+      "code": "uk",
+      "name": "Ukrainian"
+    },
+    {
+      "code": "hi",
+      "name": "Hindi"
+    },
+    {
+      "code": "th",
+      "name": "Thai"
+    },
+    {
+      "code": "zh-CN",
+      "name": "Chinese, China"
+    },
+    {
+      "code": "ja",
+      "name": "Japanese"
+    },
+    {
+      "code": "zh-TW",
+      "name": "Chinese, Taiwan"
+    },
+    {
+      "code": "ko",
+      "name": "Korean"
+    }
+  ]
+}
