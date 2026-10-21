@@ -69,6 +69,34 @@ pip install .
 
 Both give you a `dkit` command. You can also run it as `python -m dkit`.
 
+### Troubleshooting: `dkit` is not recognized
+
+If installation succeeds but your shell cannot find `dkit`, run it through
+Python instead. This does not require changing `PATH`:
+
+```console
+python -m dkit --version
+```
+
+For a user install, `python -m site --user-base` prints the directory that
+contains Python's user files. The command-line scripts are in its `bin`
+subdirectory on macOS and Linux, or its `Scripts` subdirectory on Windows. Add
+that scripts directory to your `PATH`, then open a new terminal.
+
+Alternatively, [`pipx`](https://pipx.pypa.io/) installs command-line tools in
+isolated environments and makes their commands available on `PATH`:
+
+```console
+pipx install dkit-cli
+```
+
+To confirm which release is installed, use either of these commands:
+
+```console
+dkit --version
+python -m pip show dkit-cli
+```
+
 ## Usage
 
 ```console
