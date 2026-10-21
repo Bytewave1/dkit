@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update the checkout and Python setup actions to releases that run on Node 24.
+- Measure line and branch coverage in CI with `pytest-cov`, a dev-only
+  dependency, and fail the build if it drops below 100%. The report is published
+  to the job summary. Also cover the remaining untested lines: empty `--perms`
+  and timestamp input, and `python -m dkit` (@arvindkumar-ship-it, #12).
 
 ### Added
 
