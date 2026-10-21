@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `dkit timestamp` - format a timestamp, or a snowflake's creation time, as the
+  documented Discord `<t:...>` tags, with `--style` and `--from-snowflake`.
+
 ### Changed
 
 - Run the test suite on Linux, macOS and Windows, with the full Python-version matrix on Linux.

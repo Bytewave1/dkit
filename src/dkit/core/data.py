@@ -15,7 +15,7 @@ from typing import Any
 DATA_PACKAGE = "dkit.data"
 
 #: Data files shipped with dkit, without the ``.json`` suffix.
-DATASETS = ("snowflake", "permissions", "intents", "oauth2")
+DATASETS = ("snowflake", "permissions", "intents", "oauth2", "timestamp_styles")
 
 
 @cache

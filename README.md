@@ -83,6 +83,7 @@ positional arguments:
     perms      decode a permissions integer, or build one from names
     invite     build an OAuth2 invite URL for your bot
     intents    convert gateway intent names to the integer and back
+    timestamp  format a timestamp as a Discord <t:...> tag
 
 options:
   -h, --help   show this help message and exit
@@ -253,6 +254,36 @@ The three privileged intents are `GUILD_MEMBERS`, `GUILD_PRESENCES` and
 `MESSAGE_CONTENT`. `MESSAGE_CONTENT` is listed with "no events" because it
 gates message content across the API rather than mapping to gateway events.
 
+### `dkit timestamp` — Discord message timestamp tags
+
+```console
+$ dkit timestamp 2026-10-20T08:30:00Z
+Timestamp 2026-10-20T08:30:00.000Z
+  Unix         1792485000
+
+  <t:1792485000:t>   Short Time  16:20
+  <t:1792485000:T>   Medium Time  16:20:30
+  <t:1792485000:d>   Short Date  20/04/2021
+  <t:1792485000:D>   Long Date  April 20, 2021
+  <t:1792485000:f>   Long Date, Short Time  April 20, 2021 at 16:20
+  <t:1792485000:F>   Full Date, Short Time  Tuesday, April 20, 2021 at 16:20
+  <t:1792485000:s>   Short Date, Short Time  20/04/2021, 16:20
+  <t:1792485000:S>   Short Date, Medium Time  20/04/2021, 16:20:30
+  <t:1792485000:R>   Relative Time  4 years ago
+
+  Discord renders these tags in the viewer's locale and timezone.
+  Examples come from the official table (verified 2026-10-21).
+```
+
+Style letters are case-sensitive (`t` is not `T`), and an unknown one gets a
+suggestion. `--style` prints just that tag, and `--from-snowflake` uses the
+creation time of an ID instead of a timestamp:
+
+```console
+$ dkit timestamp 2026-10-20T08:30:00Z --style R
+$ dkit timestamp --from-snowflake 175928847299117063
+```
+
 ### JSON output
 
 ```console
@@ -307,6 +338,7 @@ No Discord constant is hard-coded in logic. They all live in
 | `intents.json` | 21 gateway intents, privileged flags, associated events | [events/gateway](https://discord.com/developers/docs/events/gateway#list-of-intents) |
 | `snowflake.json` | Discord epoch and the snowflake bit layout | [reference#snowflakes](https://discord.com/developers/docs/reference#snowflakes) |
 | `oauth2.json` | Authorization URL and the 29 OAuth2 scopes | [topics/oauth2](https://discord.com/developers/docs/topics/oauth2) |
+| `timestamp_styles.json` | The nine `<t:...>` timestamp styles and their examples | [reference#message-formatting-timestamp-styles](https://discord.com/developers/docs/reference#message-formatting-timestamp-styles) |
 
 Each file records a `source` URL and a `last_verified` date. Two details worth
 knowing, both faithful to the official tables:
@@ -334,7 +366,7 @@ Contributions are very welcome, and the project is deliberately easy to extend:
 git clone https://github.com/Bytewave1/dkit
 cd dkit
 pip install -e ".[dev]"
-python -m pytest        # 150 tests
+python -m pytest        # 169 tests
 ruff check . && ruff format --check .
 ```
 

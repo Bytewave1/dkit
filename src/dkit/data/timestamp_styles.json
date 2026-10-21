@@ -1,0 +1,54 @@
+{
+  "_comment": "Discord timestamp styles for the <t:UNIX:STYLE> tag. Examples are copied from the official table; Discord renders them in the viewer's locale and timezone.",
+  "source": "https://github.com/discord/discord-api-docs/blob/main/developers/reference.mdx",
+  "source_rendered": "https://discord.com/developers/docs/reference#message-formatting-timestamp-styles",
+  "last_verified": "2026-10-21",
+  "default_style": "f",
+  "styles": [
+    {
+      "style": "t",
+      "name": "Short Time",
+      "example": "16:20"
+    },
+    {
+      "style": "T",
+      "name": "Medium Time",
+      "example": "16:20:30"
+    },
+    {
+      "style": "d",
+      "name": "Short Date",
+      "example": "20/04/2021"
+    },
+    {
+      "style": "D",
+      "name": "Long Date",
+      "example": "April 20, 2021"
+    },
+    {
+      "style": "f",
+      "name": "Long Date, Short Time",
+      "example": "April 20, 2021 at 16:20"
+    },
+    {
+      "style": "F",
+      "name": "Full Date, Short Time",
+      "example": "Tuesday, April 20, 2021 at 16:20"
+    },
+    {
+      "style": "s",
+      "name": "Short Date, Short Time",
+      "example": "20/04/2021, 16:20"
+    },
+    {
+      "style": "S",
+      "name": "Short Date, Medium Time",
+      "example": "20/04/2021, 16:20:30"
+    },
+    {
+      "style": "R",
+      "name": "Relative Time",
+      "example": "4 years ago"
+    }
+  ]
+}

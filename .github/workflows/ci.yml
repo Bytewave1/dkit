@@ -59,6 +59,7 @@ jobs:
           dkit perms --names SEND_MESSAGES,MANAGE_ROLES
           dkit intents GUILDS,GUILD_MESSAGES
           dkit invite --client-id 157730590492196864 --perms 2048
+          dkit timestamp 2026-10-20T08:30:00Z --style R
 
   lint:
     name: ruff
@@ -98,4 +99,4 @@ jobs:
           python -m twine check dist/*
 
       - name: Verify the data files are packaged
-        run: python -c "import zipfile,glob; names=zipfile.ZipFile(glob.glob('dist/*.whl')[0]).namelist(); assert sum(n.endswith('.json') for n in names) == 4, names; print('data files present')"
+        run: python -c "import zipfile,glob; names=zipfile.ZipFile(glob.glob('dist/*.whl')[0]).namelist(); assert sum(n.endswith('.json') for n in names) == 5, names; print('data files present')"
