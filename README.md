@@ -175,6 +175,13 @@ Several IDs at once, and hexadecimal input, both work:
 $ dkit snowflake 175928847299117063 80351110224678912
 ```
 
+IDs can also be read from stdin when piped or by passing `-`:
+
+```console
+$ cat ids.txt | dkit snowflake
+$ dkit snowflake - < ids.txt
+```
+
 The reverse direction gives you the lowest snowflake for a point in time, which
 is what you want for `before`/`after` pagination:
 

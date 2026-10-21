@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import io
+
 import pytest
 
 from dkit.commands.snowflake import MAX_SNOWFLAKE, decode, encode
@@ -159,3 +161,53 @@ def test_cli_invalid_input_exits_with_code_2(cli, argv: tuple[str, ...]) -> None
     assert result.exit_code == 2
     assert result.stderr.startswith("error:")
     assert result.stdout == ""
+
+
+def test_cli_snowflake_reads_from_stdin_when_piped(cli, monkeypatch) -> None:
+    monkeypatch.setattr("sys.stdin", io.StringIO("175928847299117063\n"))
+    result = cli("snowflake")
+    assert result.exit_code == 0
+    assert "2016-04-30T11:18:25.796Z" in result.stdout
+
+
+def test_cli_snowflake_reads_from_dash(cli, monkeypatch) -> None:
+    monkeypatch.setattr("sys.stdin", io.StringIO("175928847299117063\n80351110224678912\n"))
+    payload = cli("--json", "snowflake", "-").json
+    assert [item["id"] for item in payload["snowflakes"]] == [
+        "175928847299117063",
+        "80351110224678912",
+    ]
+
+
+def test_cli_snowflake_stdin_ignores_blank_lines_and_whitespace(cli, monkeypatch) -> None:
+    monkeypatch.setattr("sys.stdin", io.StringIO("\n  175928847299117063  \n\n\n"))
+    payload = cli("--json", "snowflake").json
+    assert payload["id"] == "175928847299117063"
+
+
+def test_cli_snowflake_arguments_take_priority_over_stdin(cli, monkeypatch) -> None:
+    monkeypatch.setattr("sys.stdin", io.StringIO("80351110224678912\n"))
+    payload = cli("--json", "snowflake", "175928847299117063").json
+    assert payload["id"] == "175928847299117063"
+
+
+def test_cli_snowflake_stdin_invalid_line_exits_with_code_2(cli, monkeypatch) -> None:
+    monkeypatch.setattr("sys.stdin", io.StringIO("175928847299117063\nnotanumber\n"))
+    result = cli("snowflake")
+    assert result.exit_code == 2
+    assert result.stderr.startswith("error:")
+
+
+def test_cli_snowflake_terminal_without_args_exits_with_code_2(cli, monkeypatch) -> None:
+    monkeypatch.setattr("dkit.commands.snowflake._is_terminal", lambda: True)
+    monkeypatch.setattr("sys.stdin", io.StringIO("175928847299117063\n"))
+    result = cli("snowflake")
+    assert result.exit_code == 2
+    assert "no snowflake ID given" in result.stderr
+
+
+def test_cli_snowflake_stdin_empty_exits_with_code_2(cli, monkeypatch) -> None:
+    monkeypatch.setattr("sys.stdin", io.StringIO("\n   \n"))
+    result = cli("snowflake")
+    assert result.exit_code == 2
+    assert "no snowflake ID given" in result.stderr

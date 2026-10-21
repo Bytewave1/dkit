@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -99,6 +100,25 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
     )
 
 
+def _is_terminal() -> bool:
+    try:
+        return sys.stdin.isatty()
+    except Exception:
+        return False
+
+
+def _read_stdin() -> list[str]:
+    lines: list[str] = []
+    try:
+        for line in sys.stdin:
+            stripped = line.strip()
+            if stripped:
+                lines.append(stripped)
+    except OSError:
+        pass
+    return lines
+
+
 def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
     """Execute ``dkit snowflake``."""
     if args.from_date and args.ids:
@@ -106,15 +126,21 @@ def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
             "--from-date cannot be combined with snowflake IDs",
             hint="decode IDs, or build one from a date, but not both at once",
         )
-    if not args.from_date and not args.ids:
+
+    if args.from_date:
+        return _run_encode(args.from_date, out)
+
+    ids = list(args.ids)
+    if ids == ["-"] or (not ids and not _is_terminal()):
+        ids = _read_stdin()
+
+    if not ids:
         raise UsageError(
             "no snowflake ID given",
             hint="example: dkit snowflake 175928847299117063",
         )
 
-    if args.from_date:
-        return _run_encode(args.from_date, out)
-    return _run_decode(args.ids, out)
+    return _run_decode(ids, out)
 
 
 def _run_encode(text: str, out: Printer) -> dict[str, Any]:
@@ -169,5 +195,7 @@ COMMAND = Command(
         "  dkit snowflake 175928847299117063\n"
         "  dkit snowflake 175928847299117063 80351110224678912\n"
         "  dkit snowflake --from-date 2016-04-30T11:18:25Z\n"
+        "  cat ids.txt | dkit snowflake\n"
+        "  dkit snowflake - < ids.txt\n"
     ),
 )
