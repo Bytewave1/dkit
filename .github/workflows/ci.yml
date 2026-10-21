@@ -99,4 +99,4 @@ jobs:
           python -m twine check dist/*
 
       - name: Verify the data files are packaged
-        run: python -c "import zipfile,glob; names=zipfile.ZipFile(glob.glob('dist/*.whl')[0]).namelist(); assert sum(n.endswith('.json') for n in names) == 5, names; print('data files present')"
+        run: python -c "import zipfile,glob; names=zipfile.ZipFile(glob.glob('dist/*.whl')[0]).namelist(); assert sum(n.endswith('.json') for n in names) == 6, names; print('data files present')"
