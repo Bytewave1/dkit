@@ -382,6 +382,35 @@ error: unknown locale: 'en_US'
   did you mean en-US?
 ```
 
+### `dkit channels` — Discord channel types
+
+Look up Discord channel types by integer value or name, or list every type:
+
+```console
+$ dkit channels 15
+Channel type
+  Name         GUILD_FORUM
+  Value        15
+  Description  Channel that can only contain threads
+
+$ dkit channels GUILD_FORUM
+Channel type
+  Name         GUILD_FORUM
+  Value        15
+  Description  Channel that can only contain threads
+```
+
+Running `dkit channels` without arguments lists every known channel type:
+
+```console
+$ dkit channels
+Channel types (13)
+   0  GUILD_TEXT            A text channel within a server
+   1  DM                    A direct message between users
+   2  GUILD_VOICE           A voice channel within a server
+   ...
+```
+
 ### JSON output
 
 ```console
@@ -513,6 +542,7 @@ No Discord constant is hard-coded in logic. They all live in
 | `oauth2.json` | Authorization URL and the 29 OAuth2 scopes | [topics/oauth2](https://discord.com/developers/docs/topics/oauth2) |
 | `timestamp_styles.json` | The nine `<t:...>` timestamp styles and their examples | [reference#message-formatting-timestamp-styles](https://discord.com/developers/docs/reference#message-formatting-timestamp-styles) |
 | `locales.json` | The 32 locale codes and their language names | [reference#locales](https://discord.com/developers/docs/reference#locales) |
+| `channel_types.json` | The 13 channel types, integer values and descriptions | [resources/channel#channel-object-channel-types](https://discord.com/developers/docs/resources/channel#channel-object-channel-types) |
 
 Each file records a `source` URL and a `last_verified` date. Two details worth
 knowing, both faithful to the official tables:

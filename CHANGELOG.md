@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `dkit channels` — look up Discord channel types by integer value or name, or list all types with `--json` support (#1).
 - `dkit snowflake` — read IDs from stdin when piped or when `-` is passed (#24).
 - `dkit locales` — list Discord locale codes, look one up exactly with a
   "did you mean" suggestion, or search by language name, with `--json` support
