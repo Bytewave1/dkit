@@ -185,6 +185,9 @@ def test_text_helpers_are_silent_in_json_mode(capsys) -> None:
         ("invite", "--client-id", "157730590492196864", "--perms", "2048"),
         ("intents", "GUILDS,GUILD_MESSAGES,MESSAGE_CONTENT"),
         ("intents", "33281"),
+        ("locales",),
+        ("locales", "de"),
+        ("locales", "--search", "portug"),
     ],
 )
 def test_no_command_touches_the_network(cli, monkeypatch, argv) -> None:
@@ -213,5 +216,6 @@ def test_no_command_prompts_for_input(cli, monkeypatch) -> None:
         ("perms", "8"),
         ("intents", "33281"),
         ("invite", "--client-id", "157730590492196864"),
+        ("locales", "de"),
     ):
         assert cli(*argv).exit_code == EXIT_OK
