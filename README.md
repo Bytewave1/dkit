@@ -544,6 +544,15 @@ python -m pytest
 ruff check . && ruff format --check .
 ```
 
+CI measures line and branch coverage with `pytest-cov` and fails if it drops
+below the `fail_under` threshold in `pyproject.toml`, which is currently 100%.
+The per-file report, with the missing lines, is printed on every run and
+published to the job summary. The same command works locally:
+
+```console
+python -m pytest -q --cov
+```
+
 - [CONTRIBUTING.md](CONTRIBUTING.md) walks through adding a command and
   updating the data files.
 - [docs/ISSUES.md](docs/ISSUES.md) has eight ready-to-file "good first issue"
