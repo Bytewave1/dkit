@@ -153,3 +153,122 @@ def test_cli_invalid_input_exits_with_code_2(cli, argv: tuple[str, ...]) -> None
     result = cli(*argv)
     assert result.exit_code == 2
     assert result.stderr.startswith("error:")
+
+
+# --- dkit perms --diff --------------------------------------------------
+
+
+def test_cli_diff_overlapping_values_from_the_issue(cli) -> None:
+    payload = cli("--json", "perms", "268437504", "--diff", "274878286912").json
+    assert payload["identical"] is False
+    assert payload["removed"]["names"] == ["MANAGE_ROLES"]
+    assert payload["added"]["names"] == [
+        "ADD_REACTIONS",
+        "VIEW_CHANNEL",
+        "EMBED_LINKS",
+        "ATTACH_FILES",
+        "READ_MESSAGE_HISTORY",
+        "USE_EXTERNAL_EMOJIS",
+        "SEND_MESSAGES_IN_THREADS",
+    ]
+    assert payload["unchanged"]["names"] == ["SEND_MESSAGES"]
+    assert payload["unchanged"]["bit_count"] == 1
+
+
+def test_cli_diff_text_prints_all_three_groups(cli) -> None:
+    result = cli("perms", "268437504", "--diff", "274878286912")
+    assert result.exit_code == 0
+    assert "Removed (1)" in result.stdout
+    assert "Added (7)" in result.stdout
+    assert "Unchanged (1)" in result.stdout
+    assert "MANAGE_ROLES" in result.stdout
+    assert "SEND_MESSAGES_IN_THREADS" in result.stdout
+
+
+def test_cli_diff_identical_values(cli) -> None:
+    payload = cli("--json", "perms", "2048", "--diff", "2048").json
+    assert payload["identical"] is True
+    assert payload["removed"]["names"] == []
+    assert payload["added"]["names"] == []
+    assert payload["unchanged"]["names"] == ["SEND_MESSAGES"]
+    assert "identical values" in cli("perms", "2048", "--diff", "2048").stdout
+
+
+def test_cli_diff_disjoint_values(cli) -> None:
+    payload = cli("--json", "perms", "2048", "--diff", "1024").json
+    assert payload["removed"]["names"] == ["SEND_MESSAGES"]
+    assert payload["added"]["names"] == ["VIEW_CHANNEL"]
+    assert payload["unchanged"]["names"] == []
+    assert payload["unchanged"]["bit_count"] == 0
+
+
+def test_cli_diff_is_symmetric(cli) -> None:
+    forward = cli("--json", "perms", "5", "--diff", "6").json
+    backward = cli("--json", "perms", "6", "--diff", "5").json
+    assert forward["removed"]["names"] == backward["added"]["names"]
+    assert forward["added"]["names"] == backward["removed"]["names"]
+    assert forward["unchanged"]["names"] == backward["unchanged"]["names"]
+
+
+def test_cli_diff_reports_unknown_bits_that_are_removed(cli) -> None:
+    result = cli("--json", "perms", str(2048 | 1 << 47), "--diff", "2048")
+    payload = result.json
+    assert payload["removed"]["unknown_bits"] == [47]
+    assert payload["added"]["unknown_bits"] == []
+    assert payload["unchanged"]["unknown_bits"] == []
+    text = cli("perms", str(2048 | 1 << 47), "--diff", "2048")
+    assert "unknown bits: 47" in text.stdout
+    assert "removed part contains bits dkit has no name for: 47" in text.stderr
+
+
+def test_cli_diff_reports_unknown_bits_present_in_both(cli) -> None:
+    value = str(1 << 47)
+    payload = cli("--json", "perms", value, "--diff", value).json
+    assert payload["unchanged"]["unknown_bits"] == [47]
+    assert payload["removed"]["unknown_bits"] == []
+    assert payload["added"]["unknown_bits"] == []
+    assert (
+        "unchanged part contains bits dkit has no name for: 47"
+        in cli("perms", value, "--diff", value).stderr
+    )
+
+
+def test_cli_diff_accepts_hexadecimal_for_both_values(cli) -> None:
+    payload = cli("--json", "perms", "0x800", "--diff", "0x400").json
+    assert payload["removed"]["names"] == ["SEND_MESSAGES"]
+    assert payload["added"]["names"] == ["VIEW_CHANNEL"]
+    assert payload["first"]["value"] == "2048"
+    assert payload["second"]["value"] == "1024"
+
+
+def test_cli_diff_json_values_are_strings(cli) -> None:
+    big = str(1 << 52)
+    payload = cli("--json", "perms", "0", "--diff", big).json
+    assert payload["second"]["value"] == big
+    assert payload["added"]["value"] == big
+    for key in ("first", "second", "removed", "added", "unchanged"):
+        assert isinstance(payload[key]["value"], str)
+
+
+def test_cli_diff_accepts_json_flag_after_the_command(cli) -> None:
+    payload = cli("perms", "5", "--diff", "6", "--json").json
+    assert payload["removed"]["names"] == ["CREATE_INSTANT_INVITE"]
+    assert payload["added"]["names"] == ["KICK_MEMBERS"]
+    assert payload["unchanged"]["names"] == ["BAN_MEMBERS"]
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ("perms", "5", "--diff", "abc"),
+        ("perms", "5", "--diff", "-1"),
+        ("perms", "5", "--diff", ""),
+        ("perms", "abc", "--diff", "6"),
+        ("perms", "--diff", "6"),
+        ("perms", "5", "--diff", "6", "--names", "SEND_MESSAGES"),
+    ],
+)
+def test_cli_diff_invalid_input_exits_with_code_2(cli, argv: tuple[str, ...]) -> None:
+    result = cli(*argv)
+    assert result.exit_code == 2
+    assert result.stderr.startswith("error:")
