@@ -205,6 +205,9 @@ Automating this is a tracked idea — see the `dkit update-data` item in
 - Update the README if you changed user-visible behaviour, and add a line under
   `## [Unreleased]` in `CHANGELOG.md`.
 - New commands need a usage example in the README.
+- Comment on an issue before you start, so it can be assigned to you. This avoids two people building the same thing.
+- AI-assisted contributions are welcome. Please say so in the pull request description, and make sure you understand, have tested and can explain every change in review.
+- New tests should fail when the behaviour they describe is broken. Please verify that by temporarily breaking it.
 
 ## Reporting bugs
 
