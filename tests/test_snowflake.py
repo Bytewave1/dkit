@@ -6,7 +6,7 @@ import io
 
 import pytest
 
-from dkit.commands.snowflake import MAX_SNOWFLAKE, decode, encode
+from dkit.commands.snowflake import MAX_SNOWFLAKE, _is_terminal, decode, encode
 from dkit.core.errors import UsageError
 from dkit.core.parse import parse_datetime
 
@@ -211,3 +211,11 @@ def test_cli_snowflake_stdin_empty_exits_with_code_2(cli, monkeypatch) -> None:
     result = cli("snowflake")
     assert result.exit_code == 2
     assert "no snowflake ID given" in result.stderr
+
+
+def test_stdin_that_cannot_be_probed_is_not_a_terminal(monkeypatch) -> None:
+    closed = io.StringIO()
+    closed.close()
+    for stdin in (None, closed):
+        monkeypatch.setattr("sys.stdin", stdin)
+        assert _is_terminal() is False

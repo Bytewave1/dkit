@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import runpy
 
 import pytest
 
@@ -219,3 +220,11 @@ def test_no_command_prompts_for_input(cli, monkeypatch) -> None:
         ("locales", "de"),
     ):
         assert cli(*argv).exit_code == EXIT_OK
+
+
+def test_python_dash_m_dkit_runs_the_cli(capsys, monkeypatch) -> None:
+    monkeypatch.setattr("sys.argv", ["dkit", "--version"])
+    with pytest.raises(SystemExit) as excinfo:
+        runpy.run_module("dkit", run_name="__main__")
+    assert excinfo.value.code == EXIT_OK
+    assert capsys.readouterr().out == f"dkit {__version__}\n"

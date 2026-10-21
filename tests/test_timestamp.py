@@ -110,3 +110,11 @@ def test_styles_are_single_case_sensitive_characters() -> None:
     payload = data.provenance("timestamp_styles")
     assert payload["source"].endswith("developers/reference.mdx")
     assert payload["last_verified"] == "2026-10-21"
+
+
+@pytest.mark.parametrize("value", ["", "   "])
+def test_empty_timestamp_is_rejected(cli, value: str) -> None:
+    result = cli("timestamp", value)
+    assert result.exit_code == 2
+    assert result.stdout == ""
+    assert result.stderr.startswith("error: timestamp is empty")
