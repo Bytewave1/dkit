@@ -2,14 +2,15 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+from dkit.commands.flags import user_flags
 from dkit.commands.intents import intent_flags
 from dkit.commands.perms import permission_flags
 
 
 @pytest.mark.parametrize(
     "make_flags",
-    [permission_flags, intent_flags],
-    ids=["permissions", "intents"],
+    [permission_flags, intent_flags, user_flags],
+    ids=["permissions", "intents", "user_flags"],
 )
 @settings(deadline=None)
 @given(value=st.integers(min_value=0, max_value=2**64 - 1))

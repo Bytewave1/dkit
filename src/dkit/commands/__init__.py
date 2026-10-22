@@ -10,6 +10,7 @@ from __future__ import annotations
 from dkit.commands import (
     channels,
     completion,
+    flags,
     intents,
     invite,
     locales,
@@ -29,6 +30,7 @@ COMMANDS: tuple[Command, ...] = (
     locales.COMMAND,
     channels.COMMAND,
     completion.COMMAND,
+    flags.COMMAND,
 )
 
 __all__ = ["COMMANDS"]

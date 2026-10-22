@@ -515,6 +515,41 @@ Channel types (13)
    ...
 ```
 
+### `dkit flags` — user flag integers (profile badges)
+
+Translate a user's `public_flags` / `flags` integer into the profile badge names
+it contains, or combine badge names back into the integer:
+
+```console
+$ dkit flags 131072
+User flags 131072
+  hex 0x20000  (1 of 14 known user flags)
+
+  VERIFIED_DEVELOPER           1 << 17   Early Verified Bot Developer
+
+$ dkit flags --names VERIFIED_BOT,STAFF
+User flags 65537
+  hex 0x10001  (2 of 14 known user flags)
+
+  STAFF                        1 << 0    Discord Employee
+  VERIFIED_BOT                 1 << 16   Verified Bot
+```
+
+Unknown bits are reported instead of dropped — a set bit with no name usually
+means Discord added a badge since dkit's data was last verified:
+
+```console
+$ dkit flags 4194304
+User flags 4194304
+  hex 0x400000  (0 of 14 known user flags)
+
+  (no user flags set)
+warning: value contains bits dkit has no name for: 22 (data last verified 2026-10-22)
+```
+
+`dkit flags` accepts decimal, `0x` hexadecimal and `0b` binary integers, works
+with `--json`, and lists the dataset's provenance in every output.
+
 ### JSON output
 
 ```console

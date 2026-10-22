@@ -23,6 +23,7 @@ DATASETS = (
     "timestamp_styles",
     "locales",
     "channel_types",
+    "user_flags",
 )
 
 

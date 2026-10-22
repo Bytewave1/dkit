@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `dkit intents --add` / `--remove`: modify an existing intents integer by
   name (add first, then remove), preserving unknown bits, with `--json` support
   (#41).
+- `dkit flags` - decode a user's public_flags / flags integer into the profile
+  badge names it contains (or combine names back into the integer), with
+  unknown bits reported, `0x`/`0b` input and `--json` support (#40).
 
 ## [0.2.0] - 2026-10-22
 

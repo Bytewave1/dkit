@@ -1,0 +1,83 @@
+{
+  "_comment": "Discord user flags (public_flags / flags on the user object). Values are derived as (1 << bit).",
+  "source": "https://github.com/discord/discord-api-docs/blob/main/developers/resources/user.mdx",
+  "source_rendered": "https://discord.com/developers/docs/resources/user#user-object-user-flags",
+  "last_verified": "2026-10-22",
+  "notes": [
+    "Bits 4-5, 11-13, 15, 20-21 and everything from 23 upward are not assigned in the official table and are absent.",
+    "The Active Developer badge (commonly reported as 1 << 22) is not present in the current official User Flags table, so it is not shipped here; it surfaces as an unknown bit until Discord documents it.",
+    "Verified apps can pass VERIFIED_BOT and BOT_HTTP_INTERACTIONS; the flags field is also exposed in the REST user object as public_flags."
+  ],
+  "user_flags": [
+    {
+      "name": "STAFF",
+      "bit": 0,
+      "description": "Discord Employee"
+    },
+    {
+      "name": "PARTNER",
+      "bit": 1,
+      "description": "Partnered Server Owner"
+    },
+    {
+      "name": "HYPESQUAD",
+      "bit": 2,
+      "description": "HypeSquad Events Member"
+    },
+    {
+      "name": "BUG_HUNTER_LEVEL_1",
+      "bit": 3,
+      "description": "Bug Hunter Level 1"
+    },
+    {
+      "name": "HYPESQUAD_ONLINE_HOUSE_1",
+      "bit": 6,
+      "description": "House Bravery Member"
+    },
+    {
+      "name": "HYPESQUAD_ONLINE_HOUSE_2",
+      "bit": 7,
+      "description": "House Brilliance Member"
+    },
+    {
+      "name": "HYPESQUAD_ONLINE_HOUSE_3",
+      "bit": 8,
+      "description": "House Balance Member"
+    },
+    {
+      "name": "PREMIUM_EARLY_SUPPORTER",
+      "bit": 9,
+      "description": "Early Nitro Supporter"
+    },
+    {
+      "name": "TEAM_PSEUDO_USER",
+      "bit": 10,
+      "description": "User is a team"
+    },
+    {
+      "name": "BUG_HUNTER_LEVEL_2",
+      "bit": 14,
+      "description": "Bug Hunter Level 2"
+    },
+    {
+      "name": "VERIFIED_BOT",
+      "bit": 16,
+      "description": "Verified Bot"
+    },
+    {
+      "name": "VERIFIED_DEVELOPER",
+      "bit": 17,
+      "description": "Early Verified Bot Developer"
+    },
+    {
+      "name": "CERTIFIED_MODERATOR",
+      "bit": 18,
+      "description": "Moderator Programs Alumni"
+    },
+    {
+      "name": "BOT_HTTP_INTERACTIONS",
+      "bit": 19,
+      "description": "Bot uses only HTTP interactions and is shown in the online member list"
+    }
+  ]
+}
