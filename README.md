@@ -272,6 +272,36 @@ Identical values are reported as such. Bits `dkit` has no name for are listed as
 than being dropped. `--diff` cannot be combined with `--names`, and invalid
 input exits with code 2.
 
+### Modify a permissions integer with `--add` / `--remove`
+
+A common task is "I have this permissions integer; give me the same plus or
+minus a few permissions". `--add` and `--remove` take comma-separated names
+(same normalisation as `--names`) and need a `NUMBER`. `--add` is applied first,
+then `--remove`; a name present in both ends up removed. Unknown bits in the
+input number are preserved. Cannot be combined with `--names` or `--diff`.
+
+```console
+$ dkit perms 2048 --add MANAGE_ROLES,KICK_MEMBERS
+Permissions 268437506
+  hex 0x0000000010000802  (3 of 52 known permissions)
+
+  KICK_MEMBERS                         0x0000000000000002  [2FA]
+  SEND_MESSAGES                        0x0000000000000800  [T/V/S]
+  MANAGE_ROLES                         0x0000000010000000  [2FA, T/V/S]
+
+$ dkit perms 268437504 --remove MANAGE_ROLES
+Permissions 2048
+  hex 0x0000000000000800  (1 of 52 known permissions)
+
+  SEND_MESSAGES                        0x0000000000000800  [T/V/S]
+
+$ dkit perms 2048 --add VIEW_CHANNEL --remove SEND_MESSAGES
+Permissions 1024
+  hex 0x0000000000000400  (1 of 52 known permissions)
+
+  VIEW_CHANNEL                         0x0000000000000400  [T/V/S]
+```
+
 ### List every known permission with `--list`
 
 `--list` prints every permission from the bundled dataset in bit order, with its

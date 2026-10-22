@@ -14,9 +14,13 @@ from dkit.core.registry import Command
 
 DESCRIPTION = """\
 Decode a Discord permissions integer into permission names, or calculate the
-integer for a list of names, or compare two permissions integers with --diff.
+integer for a list of names, or compare two permissions integers with --diff,
+or modify an existing integer with --add / --remove.
 Permission values exceed 32 bits, so every value is handled as an
 arbitrary-precision Python integer.
+
+When both --add and --remove are given, --add is applied first, then --remove.
+Adding and removing the same name in one call ends up removed.
 """
 
 
@@ -57,6 +61,16 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
         help="compare NUMBER with a second permissions integer, e.g. 274878286912 or 0x800",
     )
     parser.add_argument(
+        "--add",
+        metavar="NAMES",
+        help="comma-separated permission names to set on NUMBER (applied before --remove)",
+    )
+    parser.add_argument(
+        "--remove",
+        metavar="NAMES",
+        help="comma-separated permission names to clear from NUMBER (applied after --add)",
+    )
+    parser.add_argument(
         "--list",
         action="store_true",
         help="list every known permission with its bit value",
@@ -65,6 +79,8 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
 def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
     """Execute ``dkit perms``."""
+    modifying = args.add is not None or args.remove is not None
+
     if args.list:
         if args.value is not None:
             raise UsageError(
@@ -81,7 +97,28 @@ def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
                 "--list cannot be combined with --diff",
                 hint="list every permission, or compare two numbers, but not both",
             )
+        if modifying:
+            raise UsageError(
+                "--list cannot be combined with --add or --remove",
+                hint="list every permission, or modify a number, but not both",
+            )
         return _list(permission_flags(), out)
+
+    if modifying and args.names is not None:
+        raise UsageError(
+            "--add/--remove cannot be combined with --names",
+            hint="modify a number, or encode names, but not both at once",
+        )
+    if modifying and args.diff is not None:
+        raise UsageError(
+            "--add/--remove cannot be combined with --diff",
+            hint="modify a number, or compare two numbers, but not both at once",
+        )
+    if modifying and args.value is None:
+        raise UsageError(
+            "--add/--remove need a permissions number to modify",
+            hint="example: dkit perms 2048 --add MANAGE_ROLES,KICK_MEMBERS",
+        )
 
     if args.diff is not None and args.names is not None:
         raise UsageError(
@@ -107,6 +144,8 @@ def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
         )
 
     flags = permission_flags()
+    if modifying:
+        return _modify(args.value, args.add, args.remove, flags, out)
     if args.diff is not None:
         return _diff(args.value, args.diff, flags, out)
     if args.names:
@@ -191,6 +230,50 @@ def _encode(raw: str, flags: FlagSet, out: Printer) -> dict[str, Any]:
     out.line()
     for flag in matched:
         _render(flag, out)
+    out.warnings(warnings)
+    return _payload(value, matched, warnings, flags)
+
+
+def _names_from_option(raw: str, *, option: str) -> list[str]:
+    names = split_names(raw)
+    if not names:
+        raise UsageError(
+            f"{option} did not contain any permission names",
+            hint=f"example: dkit perms 2048 {option} SEND_MESSAGES,MANAGE_ROLES",
+        )
+    return names
+
+
+def _modify(
+    raw: str,
+    add: str | None,
+    remove: str | None,
+    flags: FlagSet,
+    out: Printer,
+) -> dict[str, Any]:
+    """Apply ``--add`` then ``--remove`` to NUMBER; unknown bits are preserved."""
+    value = parse_int(raw, what="permissions value")
+
+    # Order of operations: add first, then remove. A name present in both ends
+    # up cleared.
+    if add is not None:
+        for name in _names_from_option(add, option="--add"):
+            value |= flags.resolve(name).value
+    if remove is not None:
+        for name in _names_from_option(remove, option="--remove"):
+            value &= ~flags.resolve(name).value
+
+    matched = flags.flags_in(value)
+    warnings = _summary(value, flags)
+
+    out.heading(f"Permissions {value}")
+    out.note(f"  hex {value:#018x}  ({len(matched)} of {len(flags)} known permissions)")
+    out.line()
+    if matched:
+        for flag in matched:
+            _render(flag, out)
+    else:
+        out.note("  (no permissions set)")
     out.warnings(warnings)
     return _payload(value, matched, warnings, flags)
 
@@ -303,6 +386,9 @@ COMMAND = Command(
         "  dkit perms 0x800\n"
         "  dkit perms --names SEND_MESSAGES,MANAGE_ROLES\n"
         "  dkit perms 268437504 --diff 274878286912\n"
+        "  dkit perms 2048 --add MANAGE_ROLES,KICK_MEMBERS\n"
+        "  dkit perms 268437504 --remove MANAGE_ROLES\n"
+        "  dkit perms 2048 --add VIEW_CHANNEL --remove SEND_MESSAGES\n"
         "  dkit perms --list\n"
     ),
 )

@@ -337,3 +337,120 @@ def test_cli_list_sorts_unsorted_flags(cli, monkeypatch) -> None:
     assert bits == sorted(bits)
     assert bits[0] == 0
     assert bits[-1] == max(f.bit for f in flags)
+
+
+# --- dkit perms --add / --remove ----------------------------------------
+
+
+def test_cli_add_from_the_issue(cli) -> None:
+    payload = cli("--json", "perms", "2048", "--add", "MANAGE_ROLES,KICK_MEMBERS").json
+    assert payload["value"] == "268437506"
+    assert payload["names"] == ["KICK_MEMBERS", "SEND_MESSAGES", "MANAGE_ROLES"]
+    assert payload["unknown_bits"] == []
+    assert "source" in payload
+
+
+def test_cli_remove_from_the_issue(cli) -> None:
+    payload = cli("--json", "perms", "268437504", "--remove", "MANAGE_ROLES").json
+    assert payload["value"] == "2048"
+    assert payload["names"] == ["SEND_MESSAGES"]
+
+
+def test_cli_add_and_remove_together(cli) -> None:
+    payload = cli(
+        "--json", "perms", "2048", "--add", "VIEW_CHANNEL", "--remove", "SEND_MESSAGES"
+    ).json
+    assert payload["value"] == "1024"
+    assert payload["names"] == ["VIEW_CHANNEL"]
+
+
+def test_cli_same_name_in_add_and_remove_ends_up_removed(cli) -> None:
+    payload = cli(
+        "--json", "perms", "0", "--add", "SEND_MESSAGES", "--remove", "SEND_MESSAGES"
+    ).json
+    assert payload["value"] == "0"
+    assert payload["names"] == []
+
+
+def test_cli_add_preserves_unknown_bits(cli) -> None:
+    value = str(2048 | (1 << 47))
+    payload = cli("--json", "perms", value, "--add", "VIEW_CHANNEL").json
+    assert payload["value"] == str(2048 | 1024 | (1 << 47))
+    assert payload["names"] == ["VIEW_CHANNEL", "SEND_MESSAGES"]
+    assert payload["unknown_bits"] == [47]
+    text = cli("perms", value, "--add", "VIEW_CHANNEL")
+    assert "no name for" in text.stderr
+
+
+def test_cli_remove_preserves_unknown_bits(cli) -> None:
+    value = str(2048 | (1 << 47))
+    payload = cli("--json", "perms", value, "--remove", "SEND_MESSAGES").json
+    assert payload["value"] == str(1 << 47)
+    assert payload["names"] == []
+    assert payload["unknown_bits"] == [47]
+
+
+def test_cli_add_above_2_pow_32(cli) -> None:
+    # BYPASS_SLOWMODE is bit 52 (value 4503599627370496).
+    payload = cli("--json", "perms", "2048", "--add", "BYPASS_SLOWMODE").json
+    assert int(payload["value"]) > 2**32
+    assert payload["value"] == str(2048 | (1 << 52))
+    assert payload["names"] == ["SEND_MESSAGES", "BYPASS_SLOWMODE"]
+    assert isinstance(payload["value"], str)
+
+
+def test_cli_add_normalises_names(cli) -> None:
+    payload = cli("--json", "perms", "0", "--add", "send-messages, View Channel").json
+    assert payload["names"] == ["VIEW_CHANNEL", "SEND_MESSAGES"]
+
+
+def test_cli_add_text_matches_decode_format(cli) -> None:
+    result = cli("perms", "2048", "--add", "MANAGE_ROLES,KICK_MEMBERS")
+    assert result.exit_code == 0
+    assert "Permissions 268437506" in result.stdout
+    assert "KICK_MEMBERS" in result.stdout
+    assert "SEND_MESSAGES" in result.stdout
+    assert "MANAGE_ROLES" in result.stdout
+
+
+def test_cli_add_unknown_name_suggests(cli) -> None:
+    result = cli("perms", "2048", "--add", "SEND_MESSAGE")
+    assert result.exit_code == 2
+    assert "unknown permission name" in result.stderr
+    assert "SEND_MESSAGES" in result.stderr
+
+
+def test_cli_remove_unknown_name_suggests(cli) -> None:
+    result = cli("perms", "2048", "--remove", "NOPE_NOT_REAL")
+    assert result.exit_code == 2
+    assert "unknown permission name" in result.stderr
+
+
+@pytest.mark.parametrize(
+    "argv, message",
+    [
+        (("perms", "--add", "SEND_MESSAGES"), "--add/--remove need a permissions number"),
+        (("perms", "--remove", "SEND_MESSAGES"), "--add/--remove need a permissions number"),
+        (
+            ("perms", "2048", "--add", "SEND_MESSAGES", "--names", "VIEW_CHANNEL"),
+            "--add/--remove cannot be combined with --names",
+        ),
+        (
+            ("perms", "2048", "--remove", "SEND_MESSAGES", "--diff", "0"),
+            "--add/--remove cannot be combined with --diff",
+        ),
+        (("perms", "2048", "--add", ""), "--add did not contain any permission names"),
+        (("perms", "2048", "--remove", ",,,"), "--remove did not contain any permission names"),
+        (
+            ("perms", "--list", "--add", "SEND_MESSAGES"),
+            "--list cannot be combined with --add or --remove",
+        ),
+    ],
+)
+def test_cli_add_remove_invalid_input_exits_with_code_2(
+    cli, argv: tuple[str, ...], message: str
+) -> None:
+    result = cli(*argv)
+    assert result.exit_code == 2
+    assert result.stderr.startswith("error:")
+    assert message in result.stderr

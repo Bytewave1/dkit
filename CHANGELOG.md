@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `dkit perms --add` / `--remove` — modify an existing permissions integer by
+  name (add first, then remove), preserving unknown bits, with `--json` support
+  (#36).
 - `dkit perms --list` — print every known permission with its bit position,
   name, hex and decimal value in bit order, with `--json` support (#25).
 - `dkit timestamp now` — format the current UTC time truncated to whole seconds,
