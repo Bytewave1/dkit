@@ -200,6 +200,11 @@ def test_decode_url_rejects_non_urls() -> None:
         decode_url("not-a-url")
 
 
+def test_decode_url_rejects_non_http_scheme() -> None:
+    with pytest.raises(UsageError, match="not a URL"):
+        decode_url("ftp://x.com/?client_id=1")
+
+
 def test_decode_url_rejects_missing_client_id() -> None:
     with pytest.raises(UsageError, match="missing client_id"):
         decode_url("https://discord.com/oauth2/authorize?scope=bot")
@@ -253,7 +258,9 @@ def test_cli_decode_text_output(cli) -> None:
     result = cli("invite", "--decode", DECODE_URL)
     assert result.exit_code == 0
     assert "Decoded invite" in result.stdout
-    assert CLIENT_ID in result.stdout
+    client_lines = [line for line in result.stdout.splitlines() if "Client ID" in line]
+    assert len(client_lines) == 1
+    assert CLIENT_ID in client_lines[0]
     assert "SEND_MESSAGES" in result.stdout
     assert "2048" in result.stdout
 
@@ -263,6 +270,15 @@ def test_cli_decode_no_permissions_text(cli) -> None:
     result = cli("invite", "--decode", url)
     assert result.exit_code == 0
     assert "none" in result.stdout.lower()
+
+
+def test_cli_decode_missing_scopes_text(cli) -> None:
+    url = f"https://discord.com/oauth2/authorize?client_id={CLIENT_ID}&permissions=2048"
+    result = cli("invite", "--decode", url)
+    assert result.exit_code == 0
+    scope_lines = [line for line in result.stdout.splitlines() if "Scopes" in line]
+    assert len(scope_lines) == 1
+    assert "(none)" in scope_lines[0]
 
 
 def test_cli_decode_unknown_bits_text(cli) -> None:
@@ -315,3 +331,9 @@ def test_cli_decode_invalid_input_exits_with_code_2(cli, url: str) -> None:
     result = cli("invite", "--decode", url)
     assert result.exit_code == 2
     assert result.stderr.startswith("error:")
+
+
+def test_cli_decode_empty_url_names_the_error(cli) -> None:
+    result = cli("invite", "--decode", "")
+    assert result.exit_code == 2
+    assert "URL is empty" in result.stderr
