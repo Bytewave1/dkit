@@ -1,0 +1,73 @@
+{
+  "_comment": "Discord channel types from the official Channel Types table. Values are plain integers, not bitfields.",
+  "source": "https://github.com/discord/discord-api-docs/blob/main/developers/resources/channel.mdx",
+  "source_rendered": "https://discord.com/developers/docs/resources/channel#channel-object-channel-types",
+  "last_verified": "2026-10-21",
+  "channel_types": [
+    {
+      "value": 0,
+      "name": "GUILD_TEXT",
+      "description": "A text channel within a server"
+    },
+    {
+      "value": 1,
+      "name": "DM",
+      "description": "A direct message between users"
+    },
+    {
+      "value": 2,
+      "name": "GUILD_VOICE",
+      "description": "A voice channel within a server"
+    },
+    {
+      "value": 3,
+      "name": "GROUP_DM",
+      "description": "A direct message between multiple users"
+    },
+    {
+      "value": 4,
+      "name": "GUILD_CATEGORY",
+      "description": "An organizational category that contains up to 50 channels"
+    },
+    {
+      "value": 5,
+      "name": "GUILD_ANNOUNCEMENT",
+      "description": "A channel that users can follow and crosspost into their own server (formerly news channels)"
+    },
+    {
+      "value": 10,
+      "name": "ANNOUNCEMENT_THREAD",
+      "description": "A temporary sub-channel within a GUILD_ANNOUNCEMENT channel"
+    },
+    {
+      "value": 11,
+      "name": "PUBLIC_THREAD",
+      "description": "A temporary sub-channel within a GUILD_TEXT or GUILD_FORUM channel"
+    },
+    {
+      "value": 12,
+      "name": "PRIVATE_THREAD",
+      "description": "A temporary sub-channel within a GUILD_TEXT channel that is only viewable by those invited and those with the MANAGE_THREADS permission"
+    },
+    {
+      "value": 13,
+      "name": "GUILD_STAGE_VOICE",
+      "description": "A voice channel for hosting events with an audience"
+    },
+    {
+      "value": 14,
+      "name": "GUILD_DIRECTORY",
+      "description": "The channel in a student hub containing the listed servers"
+    },
+    {
+      "value": 15,
+      "name": "GUILD_FORUM",
+      "description": "Channel that can only contain threads"
+    },
+    {
+      "value": 16,
+      "name": "GUILD_MEDIA",
+      "description": "Channel that can only contain threads, similar to GUILD_FORUM channels"
+    }
+  ]
+}

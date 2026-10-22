@@ -133,3 +133,11 @@ def test_cli_requires_client_id(cli) -> None:
     with pytest.raises(SystemExit) as excinfo:
         cli("invite")
     assert excinfo.value.code == 2
+
+
+@pytest.mark.parametrize("perms", ["", " ", ",", " , ,"])
+def test_perms_without_any_names_is_rejected(cli, perms: str) -> None:
+    result = cli("invite", "--client-id", CLIENT_ID, "--perms", perms)
+    assert result.exit_code == 2
+    assert result.stdout == ""
+    assert result.stderr.startswith("error: --perms did not contain any permission names")

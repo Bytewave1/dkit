@@ -10,9 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update the checkout and Python setup actions to releases that run on Node 24.
+- Measure line and branch coverage in CI with `pytest-cov`, a dev-only
+  dependency, and fail the build if it drops below 100%. The report is published
+  to the job summary. Also cover the remaining untested lines: empty `--perms`
+  and timestamp input, and `python -m dkit` (@arvindkumar-ship-it, #12).
 
 ### Added
 
+- `dkit perms --list` — print every known permission with its bit position,
+  name, hex and decimal value in bit order, with `--json` support (#25).
+- `dkit timestamp now` — format the current UTC time truncated to whole seconds,
+  case-insensitively, with `--style` and `--json` support (#26).
+- `dkit channels` — look up Discord channel types by integer value or name, or list all types with `--json` support (#1).
 - `dkit completion bash|zsh|fish` for offline command, flag and bundled-name completion (#6).
 - `dkit snowflake` — read IDs from stdin when piped or when `-` is passed (#24).
 - `dkit locales` — list Discord locale codes, look one up exactly with a

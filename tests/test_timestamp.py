@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from datetime import datetime, timezone
 
 import pytest
 
@@ -110,3 +111,61 @@ def test_styles_are_single_case_sensitive_characters() -> None:
     payload = data.provenance("timestamp_styles")
     assert payload["source"].endswith("developers/reference.mdx")
     assert payload["last_verified"] == "2026-10-21"
+
+
+@pytest.mark.parametrize("value", ["", "   "])
+def test_empty_timestamp_is_rejected(cli, value: str) -> None:
+    result = cli("timestamp", value)
+    assert result.exit_code == 2
+    assert result.stdout == ""
+    assert result.stderr.startswith("error: timestamp is empty")
+
+
+def test_now_uses_current_time_with_fixed_clock(cli, monkeypatch) -> None:
+    fixed_now = datetime(2026, 10, 20, 8, 30, 0, tzinfo=timezone.utc)
+    monkeypatch.setattr("dkit.commands.timestamp._current_time", lambda: fixed_now)
+
+    result = cli("timestamp", "now")
+    assert result.exit_code == 0
+    assert f"<t:{KNOWN_UNIX}:f>" in result.stdout
+    assert str(KNOWN_UNIX) in result.stdout
+
+
+@pytest.mark.parametrize("now_token", ["now", "NOW", "Now", " nOw "])
+def test_now_is_case_insensitive(cli, monkeypatch, now_token: str) -> None:
+    fixed_now = datetime(2026, 10, 20, 8, 30, 0, tzinfo=timezone.utc)
+    monkeypatch.setattr("dkit.commands.timestamp._current_time", lambda: fixed_now)
+
+    payload = cli("--json", "timestamp", now_token).json
+    assert payload["timestamp"] == "2026-10-20T08:30:00.000Z"
+    assert payload["unix"] == KNOWN_UNIX
+
+
+def test_now_with_style_filter(cli, monkeypatch) -> None:
+    fixed_now = datetime(2026, 10, 20, 8, 30, 0, tzinfo=timezone.utc)
+    monkeypatch.setattr("dkit.commands.timestamp._current_time", lambda: fixed_now)
+
+    payload = cli("--json", "timestamp", "now", "--style", "R").json
+    assert payload["styles"] == [
+        {
+            "style": "R",
+            "name": "Relative Time",
+            "tag": f"<t:{KNOWN_UNIX}:R>",
+            "example": "4 years ago",
+        }
+    ]
+
+
+def test_current_time_truncates_microseconds(monkeypatch) -> None:
+    class FakeDateTime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return datetime(2026, 10, 20, 8, 30, 0, 987654, tzinfo=tz)
+
+    monkeypatch.setattr("dkit.commands.timestamp.datetime", FakeDateTime)
+    from dkit.commands.timestamp import _current_time
+
+    moment = _current_time()
+    assert moment.microsecond == 0
+    assert moment.tzinfo == timezone.utc
+    assert moment == datetime(2026, 10, 20, 8, 30, 0, tzinfo=timezone.utc)
