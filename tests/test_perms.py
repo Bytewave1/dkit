@@ -372,6 +372,30 @@ def test_cli_same_name_in_add_and_remove_ends_up_removed(cli) -> None:
     assert payload["names"] == []
 
 
+def test_cli_add_of_already_set_permission_leaves_value_unchanged(cli) -> None:
+    payload = cli("--json", "perms", "2048", "--add", "SEND_MESSAGES").json
+    assert payload["value"] == "2048"
+    assert payload["names"] == ["SEND_MESSAGES"]
+
+
+def test_cli_remove_of_absent_permission_leaves_value_unchanged(cli) -> None:
+    payload = cli("--json", "perms", "2048", "--remove", "VIEW_CHANNEL").json
+    assert payload["value"] == "2048"
+    assert payload["names"] == ["SEND_MESSAGES"]
+
+
+def test_cli_same_name_twice_in_add_sets_one_bit(cli) -> None:
+    payload = cli("--json", "perms", "0", "--add", "SEND_MESSAGES,SEND_MESSAGES").json
+    assert payload["value"] == "2048"
+    assert payload["names"] == ["SEND_MESSAGES"]
+
+
+def test_cli_same_name_twice_in_remove_stays_cleared(cli) -> None:
+    payload = cli("--json", "perms", "2048", "--remove", "SEND_MESSAGES,SEND_MESSAGES").json
+    assert payload["value"] == "0"
+    assert payload["names"] == []
+
+
 def test_cli_add_preserves_unknown_bits(cli) -> None:
     value = str(2048 | (1 << 47))
     payload = cli("--json", "perms", value, "--add", "VIEW_CHANNEL").json
