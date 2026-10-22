@@ -169,10 +169,15 @@ def test_cli_list_text_output(cli) -> None:
     assert result.exit_code == 0
     assert f"Intents ({len(intent_flags())})" in result.stdout
     assert "Markers: [privileged]" in result.stdout
-    assert "GUILDS" in result.stdout
-    assert "MESSAGE_CONTENT" in result.stdout
-    assert "[privileged]" in result.stdout
     assert "0x0000000000008000" in result.stdout
+
+    def line_for(name: str) -> str:
+        matches = [line for line in result.stdout.splitlines() if name in line.split()]
+        assert len(matches) == 1
+        return matches[0]
+
+    assert "[privileged]" in line_for("MESSAGE_CONTENT")
+    assert "[privileged]" not in line_for("GUILDS")
 
 
 def test_cli_list_conflicting_argument_exits_with_code_2(cli) -> None:
