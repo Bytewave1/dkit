@@ -329,6 +329,7 @@ def test_cli_add_json_stable_keys(cli) -> None:
             ("intents", "", "--add", "MESSAGE_CONTENT"),
             "--add/--remove need an intents number to modify",
         ),
+        (("intents", "--add", "MESSAGE_CONTENT"), "no intents given"),
         (("intents", "33280", "--add", ""), "--add did not contain any intent names"),
         (
             ("intents", "33280", "--remove", ",,,"),
