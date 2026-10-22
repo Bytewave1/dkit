@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dkit-cli"
-version = "0.1.1"
+version = "0.2.0"
 description = "An offline toolbox for Discord bot developers: snowflakes, permissions, intents and invite URLs."
 readme = "README.md"
 license = "MIT"

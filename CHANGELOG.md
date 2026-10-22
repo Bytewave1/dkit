@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-22
+
 ### Changed
 
 - Update the checkout and Python setup actions to releases that run on Node 24.
@@ -66,6 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Discord constants in `dkit/data/*.json`, each with a `source` URL and a
   `last_verified` date.
 
-[Unreleased]: https://github.com/Bytewave1/dkit/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/Bytewave1/dkit/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Bytewave1/dkit/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/Bytewave1/dkit/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/Bytewave1/dkit/releases/tag/v0.1.0
