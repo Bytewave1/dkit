@@ -129,6 +129,69 @@ def test_cli_invalid_input_exits_with_code_2(cli, argv: tuple[str, ...]) -> None
 
 
 def test_cli_requires_an_argument(cli) -> None:
-    with pytest.raises(SystemExit) as excinfo:
-        cli("intents")
-    assert excinfo.value.code == 2
+    result = cli("intents")
+    assert result.exit_code == 2
+    assert "no intents given" in result.stderr
+
+
+def test_cli_list_returns_every_intent_in_bit_order(cli) -> None:
+    payload = cli("--json", "intents", "--list").json
+    intents = payload["intents"]
+    assert payload["total"] == len(intents) == len(intent_flags())
+
+    bits = [item["bit"] for item in intents]
+    assert bits == sorted(bits)
+
+    # Stable schema checks
+    assert "source" in payload
+    assert payload["source"]["source"].endswith("gateway.mdx")
+    for intent in intents:
+        assert isinstance(intent["name"], str)
+        assert isinstance(intent["bit"], int)
+        assert isinstance(intent["value"], str)
+        assert isinstance(intent["hex"], str)
+        assert intent["value"] == str(1 << intent["bit"])
+        assert intent["hex"] == f"0x{1 << intent['bit']:016x}"
+
+    privileged = [item for item in intents if item.get("privileged")]
+    assert {item["name"] for item in privileged} == {
+        "GUILD_MEMBERS",
+        "GUILD_PRESENCES",
+        "MESSAGE_CONTENT",
+    }
+    for item in intents:
+        if item["name"] not in {"GUILD_MEMBERS", "GUILD_PRESENCES", "MESSAGE_CONTENT"}:
+            assert "privileged" not in item
+
+
+def test_cli_list_text_output(cli) -> None:
+    result = cli("intents", "--list")
+    assert result.exit_code == 0
+    assert f"Intents ({len(intent_flags())})" in result.stdout
+    assert "Markers: [privileged]" in result.stdout
+    assert "GUILDS" in result.stdout
+    assert "MESSAGE_CONTENT" in result.stdout
+    assert "[privileged]" in result.stdout
+    assert "0x0000000000008000" in result.stdout
+
+
+def test_cli_list_conflicting_argument_exits_with_code_2(cli) -> None:
+    result = cli("intents", "--list", "GUILDS")
+    assert result.exit_code == 2
+    assert "--list cannot be combined with NAMES|NUMBER" in result.stderr
+
+
+def test_cli_list_sorts_unsorted_flags(cli, monkeypatch) -> None:
+    flags = list(intent_flags())
+
+    class UnsortedFlagSet:
+        def __iter__(self):
+            return iter(reversed(flags))
+
+    monkeypatch.setattr("dkit.commands.intents.intent_flags", lambda: UnsortedFlagSet())
+
+    payload = cli("--json", "intents", "--list").json
+    bits = [item["bit"] for item in payload["intents"]]
+    assert bits == sorted(bits)
+    assert bits[0] == 0
+    assert bits[-1] == max(f.bit for f in flags)

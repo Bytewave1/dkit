@@ -365,6 +365,17 @@ The three privileged intents are `GUILD_MEMBERS`, `GUILD_PRESENCES` and
 `MESSAGE_CONTENT`. `MESSAGE_CONTENT` is listed with "no events" because it
 gates message content across the API rather than mapping to gateway events.
 
+### List every known intent with `--list`
+
+`--list` prints every gateway intent from the bundled dataset in bit order, with
+its bit position, name, 64-bit hex value and decimal value. Privileged intents
+are marked, because they must be enabled in the Developer Portal first:
+
+```console
+$ dkit intents --list
+$ dkit intents --list --json
+```
+
 ### `dkit timestamp` — Discord message timestamp tags
 
 ```console
