@@ -41,18 +41,44 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "value",
         metavar="NAMES|NUMBER",
+        nargs="?",
         help=("comma-separated intent names (GUILDS,GUILD_MESSAGES) or an intents integer (33280)"),
+    )
+    parser.add_argument(
+        "--list",
+        action="store_true",
+        help="list every known gateway intent with its bit value",
     )
 
 
 def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
     """Execute ``dkit intents``."""
+    if args.list:
+        if args.value is not None:
+            raise UsageError(
+                "--list cannot be combined with NAMES|NUMBER",
+                hint="list every intent, or convert names/a number, but not both",
+            )
+        return _list(intent_flags(), out)
+
     flags = intent_flags()
+    if args.value is None:
+        raise UsageError(
+            "no intents given",
+            hint=(
+                "examples: dkit intents GUILDS,GUILD_MESSAGES | dkit intents 33280"
+                " | dkit intents --list"
+            ),
+        )
+
     raw = args.value.strip()
     if not raw:
         raise UsageError(
             "no intents given",
-            hint="examples: dkit intents GUILDS,GUILD_MESSAGES | dkit intents 33280",
+            hint=(
+                "examples: dkit intents GUILDS,GUILD_MESSAGES | dkit intents 33280"
+                " | dkit intents --list"
+            ),
         )
 
     if looks_like_int(raw):
@@ -109,6 +135,30 @@ def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
     }
 
 
+def _list(flags: FlagSet, out: Printer) -> dict[str, Any]:
+    sorted_flags = sorted(flags, key=lambda f: f.bit)
+
+    out.heading(f"Intents ({len(sorted_flags)})")
+    out.line()
+    for flag in sorted_flags:
+        suffix = f"  {out.style('[privileged]', 'yellow')}" if flag.privileged else ""
+        bit_str = out.style(f"bit {flag.bit:>2}", "dim")
+        out.line(
+            f"  {bit_str}  {out.style(flag.name.ljust(36), 'green')} {flag.hex}"
+            f"  {flag.value}{suffix}"
+        )
+    out.line()
+    out.note("  Markers: [privileged] = must be enabled in the Developer Portal before IDENTIFY.")
+    verified = data.provenance("intents")["last_verified"]
+    out.note(f"  Data from the official table (verified {verified}).")
+
+    return {
+        "intents": [flag.as_dict() for flag in sorted_flags],
+        "total": len(sorted_flags),
+        "source": data.provenance("intents"),
+    }
+
+
 def _privileged_explanation() -> list[str]:
     dataset = data.load("intents")
     return [
@@ -145,6 +195,9 @@ COMMAND = Command(
     add_arguments=add_arguments,
     run=run,
     epilog=(
-        "examples:\n  dkit intents GUILDS,GUILD_MESSAGES,MESSAGE_CONTENT\n  dkit intents 33280\n"
+        "examples:\n"
+        "  dkit intents GUILDS,GUILD_MESSAGES,MESSAGE_CONTENT\n"
+        "  dkit intents 33280\n"
+        "  dkit intents --list\n"
     ),
 )
