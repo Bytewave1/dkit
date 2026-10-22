@@ -17,14 +17,14 @@ SCRIPTS = {
     COMPREPLY=()
     while IFS= read -r candidate; do
         COMPREPLY+=("$candidate")
-    done < <(command dkit completion --complete "${COMP_WORDS[@]:1:COMP_CWORD}")
+    done < <(command dkit completion --complete -- "${COMP_WORDS[@]:1:COMP_CWORD}")
 }
 complete -F _dkit_complete dkit
 """,
     "zsh": """#compdef dkit
 _dkit_complete() {
     local -a candidates
-    candidates=("${(@f)$(command dkit completion --complete "${words[@]:1:$((CURRENT-1))}")}")
+    candidates=("${(@f)$(command dkit completion --complete -- "${words[@]:1:$((CURRENT-1))}")}")
     (( ${#candidates} )) && compadd -Q -- "${candidates[@]}"
 }
 compdef _dkit_complete dkit
@@ -32,7 +32,7 @@ compdef _dkit_complete dkit
     "fish": """function __dkit_complete
     set -l words (commandline -opc)
     set -l current (commandline -ct)
-    command dkit completion --complete $words[2..-1] "$current"
+    command dkit completion --complete -- $words[2..-1] "$current"
 end
 complete -c dkit -f -a '(__dkit_complete)'
 """,

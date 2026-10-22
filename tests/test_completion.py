@@ -80,6 +80,8 @@ def test_missing_shell_is_usage_error(cli):
     [
         (["dkit", "per"], "perms"),
         (["dkit", "perms", "--n"], "--names"),
+        (["dkit", "perms", "--"], "--json"),
+        (["dkit", "snowflake", "--"], "--json"),
         (["dkit", "perms", "--names", "SEND_MESSAGES_IN"], "SEND_MESSAGES_IN_THREADS"),
         (["dkit", "intents", "GUILDS,GUILD_M"], "GUILDS,GUILD_MESSAGES"),
         (["dkit", "invite", "--scopes", ""], "bot"),
@@ -140,3 +142,15 @@ def test_generated_shell_calls_real_helper(cli, tmp_path, shell, words, expected
     )
     assert result.returncode == 0, result.stderr
     assert expected in result.stdout.splitlines()
+
+
+@pytest.mark.parametrize("command", ["perms", "snowflake"])
+@pytest.mark.parametrize("separator", [(), ("--",)])
+@pytest.mark.parametrize("global_flags", [(), ("--json",)])
+def test_cli_preserves_bare_double_dash(cli, command, separator, global_flags):
+    result = cli(*global_flags, "completion", "--complete", *separator, command, "--")
+    assert result.exit_code == 0
+    actual = result.json["candidates"] if global_flags else result.stdout.splitlines()
+    assert "--json" in actual
+    assert command not in actual
+    assert actual == candidates([command, "--"])

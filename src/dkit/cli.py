@@ -90,7 +90,25 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the CLI and return the process exit code."""
     parser = build_parser()
-    args = parser.parse_args(argv)
+    words = list(sys.argv[1:] if argv is None else argv)
+    # Completion words are opaque data, including argparse's special "--".
+    # Parse only the protocol prefix so argparse cannot consume candidate words.
+    command_index = next(
+        (i for i, word in enumerate(words) if word not in ("--json", "--no-color")),
+        None,
+    )
+    if (
+        command_index is not None
+        and words[command_index] == "completion"
+        and "--complete" in words[command_index + 1 :]
+        and "--" not in words[: words.index("--complete")]
+    ):
+        split = words.index("--complete") + 1
+        args = parser.parse_args(words[:split])
+        complete = words[split:]
+        args.complete = complete[1:] if complete[:1] == ["--"] else complete
+    else:
+        args = parser.parse_args(words)
 
     # These use argparse.SUPPRESS defaults so that they work on either side
     # of the command name, which means they may be absent entirely.
