@@ -103,6 +103,7 @@ def test_discord_epoch() -> None:
 def test_oauth2_authorize_url_and_scopes() -> None:
     oauth2 = data.load("oauth2")
     assert oauth2["authorize_url"] == "https://discord.com/oauth2/authorize"
-    assert "bot" in oauth2["scopes"]
-    assert "applications.commands" in oauth2["scopes"]
+    names = [entry["name"] for entry in oauth2["scopes"]]
+    assert "bot" in names
+    assert "applications.commands" in names
     assert oauth2["default_scopes"] == ["bot", "applications.commands"]

@@ -581,6 +581,35 @@ warning: value contains bits dkit has no name for: 22 (data last verified 2026-1
 `dkit flags` accepts decimal, `0x` hexadecimal and `0b` binary integers, works
 with `--json`, and lists the dataset's provenance in every output.
 
+### `dkit scopes` — Discord OAuth2 scopes
+
+List every OAuth2 scope Discord supports, look one up by name, or search scopes
+by name and description. Scopes only available to approved partners are marked:
+
+```console
+$ dkit scopes identify
+OAuth2 scope
+  Name         identify
+  Description  allows `/users/@me` without `email`
+
+  Scope names are lowercase and exact.
+  [approval] = only available to approved partners.
+  Data comes from the official table (verified 2026-10-22).
+
+$ dkit scopes --search voice
+OAuth2 scopes matching 'voice' (3)
+  rpc.voice.read   for local rpc server access, this allows you to read a user's voice settings and listen for voice events - only available to approved partners  [approval]
+  rpc.voice.write  for local rpc server access, this allows you to update a user's voice settings - only available to approved partners  [approval]
+  voice            allows your app to connect to voice on user's behalf and see all the voice members - only available to approved partners  [approval]
+
+  Scope names are lowercase and exact.
+  [approval] = only available to approved partners.
+  Data comes from the official table (verified 2026-10-22).
+```
+
+An unknown scope name gets the same "did you mean" help as the other commands,
+and `dkit --json scopes` returns the full dataset entries with provenance.
+
 ### JSON output
 
 ```console

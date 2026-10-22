@@ -16,6 +16,7 @@ from dkit.commands import (
     invite,
     locales,
     perms,
+    scopes,
     snowflake,
     timestamp,
 )
@@ -31,6 +32,7 @@ COMMANDS: tuple[Command, ...] = (
     locales.COMMAND,
     channels.COMMAND,
     color.COMMAND,
+    scopes.COMMAND,
     completion.COMMAND,
     flags.COMMAND,
 )

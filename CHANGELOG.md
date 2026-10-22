@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `color` field, hex and RGB. Accepts `#RRGGBB`, `RRGGBB`, `0xRRGGBB`, `#RGB`
   and decimal input (bare digits are decimal), or `--rgb R,G,B`, with `--json`
   support (@arvindkumar-ship-it, #52).
+- `dkit scopes` - list and look up Discord OAuth2 scopes, with descriptions
+  copied from the official table, approval-gated scopes marked, `--search`,
+  "did you mean" help and `--json` support (#43).
 
 ## [0.2.0] - 2026-10-22
 

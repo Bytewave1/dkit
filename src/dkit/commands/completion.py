@@ -73,7 +73,7 @@ def candidates(words: list[str]) -> list[str]:
     if command == "perms" and previous == "--names":
         names = [entry["name"] for entry in data.load("permissions")["permissions"]]
     elif command == "invite" and previous == "--scopes":
-        names = data.load("oauth2")["scopes"]
+        names = [entry["name"] for entry in data.load("oauth2")["scopes"]]
     elif command == "invite" and previous == "--perms":
         names = [entry["name"] for entry in data.load("permissions")["permissions"]]
     elif command == "intents" and not current.startswith("-"):

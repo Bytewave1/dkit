@@ -41,7 +41,7 @@ def validate_client_id(raw: str) -> str:
 
 def validate_scopes(raw: str | None) -> list[str]:
     """Split and validate the requested OAuth2 scopes."""
-    known = _oauth2()["scopes"]
+    known = [entry["name"] for entry in _oauth2()["scopes"]]
     scopes = split_names(raw) if raw is not None else list(_oauth2()["default_scopes"])
     if not scopes:
         raise UsageError(
