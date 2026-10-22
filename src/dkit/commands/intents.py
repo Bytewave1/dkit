@@ -14,8 +14,12 @@ from dkit.core.registry import Command
 
 DESCRIPTION = """\
 Convert gateway intent names into the integer passed in the IDENTIFY payload,
-or decode such an integer back into names. Privileged intents are called out,
-because they must be enabled in the Discord Developer Portal first.
+or decode such an integer back into names, or modify an existing integer with
+--add / --remove. Privileged intents are called out, because they must be
+enabled in the Discord Developer Portal first.
+
+When both --add and --remove are given, --add is applied first, then --remove.
+Adding and removing the same name in one call ends up removed.
 """
 
 
@@ -49,6 +53,16 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
         action="store_true",
         help="list every known gateway intent with its bit value",
     )
+    parser.add_argument(
+        "--add",
+        metavar="NAMES",
+        help="comma-separated intent names to set on NUMBER (applied before --remove)",
+    )
+    parser.add_argument(
+        "--remove",
+        metavar="NAMES",
+        help="comma-separated intent names to clear from NUMBER (applied after --add)",
+    )
 
 
 def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
@@ -72,6 +86,21 @@ def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
         )
 
     raw = args.value.strip()
+    modifying = args.add is not None or args.remove is not None
+
+    if modifying:
+        if not raw:
+            raise UsageError(
+                "--add/--remove need an intents number to modify",
+                hint="example: dkit intents 33280 --add MESSAGE_CONTENT",
+            )
+        if not looks_like_int(raw):
+            raise UsageError(
+                "--add/--remove need an intents number, not intent names",
+                hint="example: dkit intents 33280 --add MESSAGE_CONTENT",
+            )
+        return _modify(raw, args.add, args.remove, flags, out)
+
     if not raw:
         raise UsageError(
             "no intents given",
@@ -89,6 +118,42 @@ def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
         value = flags.value_of(names)
         direction = "names-to-number"
 
+    return _render_result(value, direction, flags, out)
+
+
+def _names_from_option(raw: str, *, option: str) -> list[str]:
+    names = split_names(raw)
+    if not names:
+        raise UsageError(
+            f"{option} did not contain any intent names",
+            hint=f"example: dkit intents 33280 {option} MESSAGE_CONTENT",
+        )
+    return names
+
+
+def _modify(
+    raw: str,
+    add: str | None,
+    remove: str | None,
+    flags: FlagSet,
+    out: Printer,
+) -> dict[str, Any]:
+    """Apply ``--add`` then ``--remove`` to NUMBER; unknown bits are preserved."""
+    value = parse_int(raw, what="intents value")
+
+    # Order of operations: add first, then remove. A name present in both ends
+    # up cleared.
+    if add is not None:
+        for name in _names_from_option(add, option="--add"):
+            value |= flags.resolve(name).value
+    if remove is not None:
+        for name in _names_from_option(remove, option="--remove"):
+            value &= ~flags.resolve(name).value
+
+    return _render_result(value, "number-to-names", flags, out)
+
+
+def _render_result(value: int, direction: str, flags: FlagSet, out: Printer) -> dict[str, Any]:
     matched = flags.flags_in(value)
     privileged = [flag for flag in matched if flag.privileged]
     warnings = _warnings(value, flags, privileged)
@@ -199,5 +264,8 @@ COMMAND = Command(
         "  dkit intents GUILDS,GUILD_MESSAGES,MESSAGE_CONTENT\n"
         "  dkit intents 33280\n"
         "  dkit intents --list\n"
+        "  dkit intents 33280 --add MESSAGE_CONTENT\n"
+        "  dkit intents 33280 --remove GUILD_MESSAGES\n"
+        "  dkit intents 33280 --add GUILD_MEMBERS --remove GUILD_MESSAGES\n"
     ),
 )

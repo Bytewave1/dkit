@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `dkit intents --list` - print every known gateway intent with its bit position,
   name, hex and decimal value in bit order, with privileged intents marked and
   `--json` support (#34).
+- `dkit intents --add` / `--remove`: modify an existing intents integer by
+  name (add first, then remove), preserving unknown bits, with `--json` support
+  (#41).
 
 ## [0.2.0] - 2026-10-22
 

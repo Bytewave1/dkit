@@ -200,3 +200,142 @@ def test_cli_list_sorts_unsorted_flags(cli, monkeypatch) -> None:
     assert bits == sorted(bits)
     assert bits[0] == 0
     assert bits[-1] == max(f.bit for f in flags)
+
+
+# --- dkit intents --add / --remove ----------------------------------------
+
+
+def test_cli_add_from_the_issue(cli) -> None:
+    # 33280 = GUILD_MESSAGES | MESSAGE_CONTENT; adding MESSAGE_CONTENT is a no-op
+    # for the bit, but adding GUILD_MEMBERS changes the value.
+    payload = cli("--json", "intents", "33280", "--add", "GUILD_MEMBERS").json
+    assert payload["value"] == "33282"
+    assert payload["value_int"] == 33282
+    assert payload["names"] == ["GUILD_MEMBERS", "GUILD_MESSAGES", "MESSAGE_CONTENT"]
+    assert payload["direction"] == "number-to-names"
+    assert payload["unknown_bits"] == []
+    assert "source" in payload
+
+
+def test_cli_remove_from_the_issue(cli) -> None:
+    payload = cli("--json", "intents", "33280", "--remove", "GUILD_MESSAGES").json
+    assert payload["value"] == "32768"
+    assert payload["names"] == ["MESSAGE_CONTENT"]
+
+
+def test_cli_add_and_remove_together(cli) -> None:
+    payload = cli(
+        "--json",
+        "intents",
+        "33280",
+        "--add",
+        "GUILD_MEMBERS",
+        "--remove",
+        "GUILD_MESSAGES",
+    ).json
+    assert payload["value"] == "32770"
+    assert payload["names"] == ["GUILD_MEMBERS", "MESSAGE_CONTENT"]
+
+
+def test_cli_same_name_in_add_and_remove_ends_up_removed(cli) -> None:
+    payload = cli("--json", "intents", "0", "--add", "GUILDS", "--remove", "GUILDS").json
+    assert payload["value"] == "0"
+    assert payload["names"] == []
+
+
+def test_cli_add_of_already_set_intent_leaves_value_unchanged(cli) -> None:
+    payload = cli("--json", "intents", "33280", "--add", "MESSAGE_CONTENT").json
+    assert payload["value"] == "33280"
+    assert payload["names"] == ["GUILD_MESSAGES", "MESSAGE_CONTENT"]
+
+
+def test_cli_remove_of_absent_intent_leaves_value_unchanged(cli) -> None:
+    payload = cli("--json", "intents", "33280", "--remove", "GUILDS").json
+    assert payload["value"] == "33280"
+    assert payload["names"] == ["GUILD_MESSAGES", "MESSAGE_CONTENT"]
+
+
+def test_cli_add_preserves_unknown_bits(cli) -> None:
+    value = str(33280 | (1 << 18))
+    payload = cli("--json", "intents", value, "--add", "GUILDS").json
+    assert payload["value"] == str(33280 | 1 | (1 << 18))
+    assert payload["names"] == ["GUILDS", "GUILD_MESSAGES", "MESSAGE_CONTENT"]
+    assert payload["unknown_bits"] == [18]
+    text = cli("intents", value, "--add", "GUILDS")
+    assert "no name for" in text.stderr
+
+
+def test_cli_remove_preserves_unknown_bits(cli) -> None:
+    value = str(33280 | (1 << 18))
+    payload = cli("--json", "intents", value, "--remove", "GUILD_MESSAGES").json
+    assert payload["value"] == str(32768 | (1 << 18))
+    assert payload["names"] == ["MESSAGE_CONTENT"]
+    assert payload["unknown_bits"] == [18]
+
+
+def test_cli_add_unknown_name_suggests(cli) -> None:
+    result = cli("intents", "33280", "--add", "GUILD_MEMBER")
+    assert result.exit_code == 2
+    assert "unknown intent name" in result.stderr
+    assert "GUILD_MEMBERS" in result.stderr
+
+
+def test_cli_remove_unknown_name_suggests(cli) -> None:
+    result = cli("intents", "33280", "--remove", "NOPE_NOT_REAL")
+    assert result.exit_code == 2
+    assert "unknown intent name" in result.stderr
+
+
+def test_cli_add_text_matches_decode_format(cli) -> None:
+    result = cli("intents", "33280", "--add", "GUILD_MEMBERS")
+    assert result.exit_code == 0
+    assert "Intents 33282" in result.stdout
+    assert "GUILD_MEMBERS" in result.stdout
+    assert "GUILD_MESSAGES" in result.stdout
+    assert "MESSAGE_CONTENT" in result.stdout
+    assert "[privileged]" in result.stdout
+
+
+def test_cli_add_json_stable_keys(cli) -> None:
+    payload = cli("--json", "intents", "33280", "--add", "GUILDS").json
+    for key in (
+        "direction",
+        "value",
+        "value_int",
+        "hex",
+        "bit_count",
+        "intents",
+        "names",
+        "privileged",
+        "unknown_bits",
+        "warnings",
+        "source",
+    ):
+        assert key in payload
+
+
+@pytest.mark.parametrize(
+    "argv, message",
+    [
+        (
+            ("intents", "GUILDS,GUILD_MESSAGES", "--add", "MESSAGE_CONTENT"),
+            "--add/--remove need an intents number, not intent names",
+        ),
+        (
+            ("intents", "GUILDS", "--remove", "GUILD_MESSAGES"),
+            "--add/--remove need an intents number, not intent names",
+        ),
+        (("intents", "33280", "--add", ""), "--add did not contain any intent names"),
+        (
+            ("intents", "33280", "--remove", ",,,"),
+            "--remove did not contain any intent names",
+        ),
+    ],
+)
+def test_cli_add_remove_invalid_input_exits_with_code_2(
+    cli, argv: tuple[str, ...], message: str
+) -> None:
+    result = cli(*argv)
+    assert result.exit_code == 2
+    assert result.stderr.startswith("error:")
+    assert message in result.stderr

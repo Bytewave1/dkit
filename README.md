@@ -376,6 +376,35 @@ $ dkit intents --list
 $ dkit intents --list --json
 ```
 
+### Modify an intents integer with `--add` / `--remove`
+
+`--add` and `--remove` take comma-separated intent names and need a `NUMBER`
+(not a name list). `--add` is applied first, then `--remove`; a name present in
+both ends up removed. Unknown bits in the input number are preserved. Privileged
+intents in the result are still called out.
+
+```console
+$ dkit intents 33280 --add MESSAGE_CONTENT
+Intents 33280
+  hex 0x8200  (2 of 21 known intents)
+
+  GUILD_MESSAGES                   1 << 9    4 events
+  MESSAGE_CONTENT                  1 << 15   no events  [privileged]
+
+$ dkit intents 33280 --remove GUILD_MESSAGES
+Intents 32768
+  hex 0x8000  (1 of 21 known intents)
+
+  MESSAGE_CONTENT                  1 << 15   no events  [privileged]
+
+$ dkit intents 33280 --add GUILD_MEMBERS --remove GUILD_MESSAGES
+Intents 32770
+  hex 0x8002  (2 of 21 known intents)
+
+  GUILD_MEMBERS                    1 << 1    4 events  [privileged]
+  MESSAGE_CONTENT                  1 << 15   no events  [privileged]
+```
+
 ### `dkit timestamp` — Discord message timestamp tags
 
 ```console
