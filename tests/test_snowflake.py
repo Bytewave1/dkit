@@ -7,6 +7,7 @@ import io
 import pytest
 
 from dkit.commands.snowflake import MAX_SNOWFLAKE, _is_terminal, decode, encode
+from dkit.core import data
 from dkit.core.errors import UsageError
 from dkit.core.parse import parse_datetime
 
@@ -219,3 +220,237 @@ def test_stdin_that_cannot_be_probed_is_not_a_terminal(monkeypatch) -> None:
     for stdin in (None, closed):
         monkeypatch.setattr("sys.stdin", stdin)
         assert _is_terminal() is False
+
+
+# --- mentions and message links (issue #42) --------------------------------
+
+#: IDs the official documentation uses in its own examples.
+USER_ID = "80351110224678912"
+CHANNEL_ID = "103735883630395392"
+ROLE_ID = "165511591545143296"
+GUILD_ID = "175928847299117063"
+MESSAGE_ID = "175928847299117064"
+
+
+@pytest.mark.parametrize(
+    ("mention", "expected_id", "label"),
+    [
+        (f"<@{USER_ID}>", USER_ID, "user"),
+        (f"<@!{USER_ID}>", USER_ID, "user"),
+        (f"<#{CHANNEL_ID}>", CHANNEL_ID, "channel"),
+        (f"<@&{ROLE_ID}>", ROLE_ID, "role"),
+    ],
+)
+def test_cli_accepts_every_mention_form(cli, mention: str, expected_id: str, label: str) -> None:
+    payload = cli("--json", "snowflake", mention).json
+    assert payload["id"] == expected_id
+    assert payload["label"] == label
+
+
+def test_cli_mention_payload_is_the_plain_payload_plus_a_label(cli) -> None:
+    plain = cli("--json", "snowflake", USER_ID).json
+    mention = cli("--json", "snowflake", f"<@{USER_ID}>").json
+    assert mention == {**plain, "label": "user"}
+
+
+def test_cli_text_output_labels_the_kind_of_each_id(cli) -> None:
+    result = cli("snowflake", f"<@{USER_ID}>")
+    assert result.exit_code == 0
+    assert any(line.split() == ["Kind", "user"] for line in result.stdout.splitlines())
+
+
+def test_cli_game_profile_mentions_are_refused_clearly(cli) -> None:
+    result = cli("snowflake", "<@$1402418491272986635>")
+    assert result.exit_code == 2
+    assert result.stdout == ""
+    assert "game profile mention" in result.stderr
+
+
+@pytest.mark.parametrize("mention", ["<>", "<@>", "<@!>", "<#>", "<@&>"])
+def test_cli_mention_without_an_id_is_rejected(cli, mention: str) -> None:
+    result = cli("snowflake", mention)
+    assert result.exit_code == 2
+    assert result.stdout == ""
+
+
+def test_cli_angle_brackets_around_plain_text_are_not_a_mention(cli) -> None:
+    result = cli("snowflake", "<hello>")
+    assert result.exit_code == 2
+    assert "is not a Discord mention" in result.stderr
+
+
+@pytest.mark.parametrize("text", ["<@123", "@123>", "<#123", "123>"])
+def test_cli_unbalanced_angle_brackets_are_not_a_mention(cli, text: str) -> None:
+    """A mention needs both brackets, so a half-open one stays an invalid ID."""
+    result = cli("snowflake", text)
+    assert result.exit_code == 2
+    assert result.stdout == ""
+    assert "not a valid integer" in result.stderr
+
+
+def test_cli_message_link_labels_each_id_it_carries(cli) -> None:
+    link = f"https://discord.com/channels/{GUILD_ID}/{CHANNEL_ID}/{MESSAGE_ID}"
+    payload = cli("--json", "snowflake", link).json
+    assert [item["id"] for item in payload["snowflakes"]] == [GUILD_ID, CHANNEL_ID, MESSAGE_ID]
+    assert [item["label"] for item in payload["snowflakes"]] == ["guild", "channel", "message"]
+    # A link that is not a direct message has nothing to warn about.
+    assert "warnings" not in payload
+
+
+@pytest.mark.parametrize(
+    "host",
+    [
+        "discord.com",
+        "www.discord.com",
+        "canary.discord.com",
+        "ptb.discord.com",
+        "discordapp.com",
+        "www.discordapp.com",
+        "canary.discordapp.com",
+    ],
+)
+def test_cli_accepts_every_discord_host(cli, host: str) -> None:
+    link = f"https://{host}/channels/{GUILD_ID}/{CHANNEL_ID}/{MESSAGE_ID}"
+    assert len(cli("--json", "snowflake", link).json["snowflakes"]) == 3
+
+
+def test_cli_accepts_plain_http_and_a_trailing_slash(cli) -> None:
+    link = f"http://discord.com/channels/{GUILD_ID}/{CHANNEL_ID}/{MESSAGE_ID}/"
+    assert len(cli("--json", "snowflake", link).json["snowflakes"]) == 3
+
+
+@pytest.mark.parametrize(
+    "link",
+    [
+        "ftp://discord.com/channels/1/2/3",
+        "file://discord.com/channels/1/2/3",
+    ],
+)
+def test_cli_only_http_links_to_discord_are_decoded(cli, link: str) -> None:
+    """Any other scheme stays a plain, invalid ID even on a Discord host."""
+    result = cli("snowflake", link)
+    assert result.exit_code == 2
+    assert result.stdout == ""
+    assert "not a valid integer" in result.stderr
+
+
+def test_cli_accepts_a_channel_link_without_a_message_id(cli) -> None:
+    link = f"https://discord.com/channels/{GUILD_ID}/{CHANNEL_ID}"
+    payload = cli("--json", "snowflake", link).json
+    assert [item["label"] for item in payload["snowflakes"]] == ["guild", "channel"]
+
+
+def test_cli_direct_message_link_skips_the_guild_slot(cli) -> None:
+    link = f"https://discord.com/channels/@me/{CHANNEL_ID}/{MESSAGE_ID}"
+    payload = cli("--json", "snowflake", link).json
+    assert [item["id"] for item in payload["snowflakes"]] == [CHANNEL_ID, MESSAGE_ID]
+    assert [item["label"] for item in payload["snowflakes"]] == ["channel", "message"]
+    assert "@me" in payload["warnings"][0]
+
+
+def test_cli_direct_message_link_warning_goes_to_stderr(cli) -> None:
+    link = f"https://discord.com/channels/@me/{CHANNEL_ID}/{MESSAGE_ID}"
+    result = cli("snowflake", link)
+    assert result.exit_code == 0
+    assert result.stdout
+    assert result.stderr.startswith("warning:")
+
+
+@pytest.mark.parametrize(
+    "link",
+    [
+        f"https://discord.com/channels/{GUILD_ID}/@me/{MESSAGE_ID}",
+        f"https://discord.com/channels/{GUILD_ID}/{CHANNEL_ID}/@me",
+    ],
+)
+def test_cli_direct_message_marker_only_stands_in_for_the_guild_id(cli, link: str) -> None:
+    """``@me`` is only meaningful where the guild ID goes."""
+    result = cli("snowflake", link)
+    assert result.exit_code == 2
+    assert result.stdout == ""
+    assert "not a valid integer" in result.stderr
+
+
+@pytest.mark.parametrize(
+    "link",
+    [
+        "https://discord.com/",
+        "https://discord.com/channels",
+        "https://discord.com/channels/1",
+        "https://discord.com/channels/1/2/3/4",
+        "https://discord.com/foo/1/2",
+    ],
+)
+def test_cli_malformed_message_link_is_reported_as_such(cli, link: str) -> None:
+    result = cli("snowflake", link)
+    assert result.exit_code == 2
+    assert result.stdout == ""
+    assert "is not a Discord message link" in result.stderr
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "https://example.com/channels/1/2/3",
+        "https://evil-discord.com/channels/1/2/3",
+        "https://discord.com.evil.com/channels/1/2/3",
+        "https:///channels/1/2/3",
+        "https://[oops/channels/1/2/3",
+        "discord.com/channels/1/2/3",
+    ],
+)
+def test_cli_text_that_is_not_a_discord_link_falls_back_to_the_integer_error(
+    cli, text: str
+) -> None:
+    """Anything that is not a link to Discord stays a plain, invalid ID."""
+    result = cli("snowflake", text)
+    assert result.exit_code == 2
+    assert result.stdout == ""
+    assert "not a valid integer" in result.stderr
+
+
+def test_cli_json_for_a_plain_id_keeps_its_exact_shape(cli) -> None:
+    payload = cli("--json", "snowflake", "175928847299117063").json
+    assert list(payload) == [
+        "id",
+        "created_at",
+        "unix_ms",
+        "discord_ms",
+        "worker_id",
+        "process_id",
+        "increment",
+        "source",
+    ]
+
+
+def test_cli_mixes_plain_ids_and_labelled_forms(cli) -> None:
+    payload = cli("--json", "snowflake", USER_ID, f"<#{CHANNEL_ID}>").json
+    assert payload["snowflakes"][0].get("label") is None
+    assert payload["snowflakes"][1]["label"] == "channel"
+
+
+def test_cli_stdin_accepts_mentions_and_links(cli, monkeypatch) -> None:
+    lines = "\n".join(
+        [
+            f"<@{USER_ID}>",
+            f"https://discord.com/channels/{GUILD_ID}/{CHANNEL_ID}/{MESSAGE_ID}",
+            "",
+        ]
+    )
+    monkeypatch.setattr("sys.stdin", io.StringIO(lines))
+    payload = cli("--json", "snowflake", "-").json
+    assert [item["label"] for item in payload["snowflakes"]] == [
+        "user",
+        "guild",
+        "channel",
+        "message",
+    ]
+
+
+def test_message_link_data_declares_where_it_comes_from() -> None:
+    links = data.load("snowflake")["message_links"]
+    assert links["domains"] == ["discord.com", "discordapp.com"]
+    assert links["path_prefix"] == "channels"
+    assert links["dm_marker"] == "@me"
+    assert links["source"].startswith("https://github.com/discord/discord-api-docs")
+    assert links["last_verified"]

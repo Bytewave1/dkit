@@ -28,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `dkit scopes` - list and look up Discord OAuth2 scopes, with descriptions
   copied from the official table, approval-gated scopes marked, `--search`,
   "did you mean" help and `--json` support (#43).
+- `dkit snowflake` — accept user, channel and role mentions (`<@ID>`, `<@!ID>`,
+  `<#ID>`, `<@&ID>`) and Discord message links, labelling every decoded ID with
+  what the input named; plain-ID text and `--json` output is unchanged (#42).
 
 ## [0.2.0] - 2026-10-22
 

@@ -2,7 +2,7 @@
   "_comment": "Discord snowflake ID layout. Fields are extracted as (id & mask) >> shift.",
   "source": "https://github.com/discord/discord-api-docs/blob/main/developers/reference.mdx",
   "source_rendered": "https://discord.com/developers/docs/reference#snowflakes",
-  "last_verified": "2026-10-20",
+  "last_verified": "2026-10-22",
   "epoch_ms": 1420070400000,
   "epoch_description": "Discord Epoch: the first second of 2015 (1420070400000 ms Unix).",
   "bits": 64,
@@ -43,5 +43,17 @@
       "offset_ms": 0,
       "description": "Incremented for every ID generated on that process."
     }
-  ]
+  ],
+  "message_links": {
+    "_comment": "Where a Discord message link may live and how its path is shaped. The /channels/GUILD/CHANNEL[/MESSAGE] shape and the discord.com host come from the Cloudflare Workers tutorial; discordapp.com is Discord's legacy domain and still redirects to it, so older links keep working. Every subdomain is accepted, which covers canary., ptb. and www. The documentation does not enumerate link hosts, so both domains and the subdomain rule are stated in the pull request. The mention grammar is syntax and stays in commands/snowflake.py.",
+    "domains": [
+      "discord.com",
+      "discordapp.com"
+    ],
+    "path_prefix": "channels",
+    "dm_marker": "@me",
+    "source": "https://github.com/discord/discord-api-docs/blob/main/developers/tutorials/hosting-on-cloudflare-workers.mdx",
+    "source_rendered": "https://discord.com/developers/docs/tutorials/hosting-on-cloudflare-workers",
+    "last_verified": "2026-10-22"
+  }
 }

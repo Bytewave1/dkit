@@ -183,6 +183,66 @@ $ cat ids.txt | dkit snowflake
 $ dkit snowflake - < ids.txt
 ```
 
+A mention such as `<@ID>`, `<@!ID>`, `<#ID>` or `<@&ID>` is accepted as well,
+and a Discord message link such as
+`https://discord.com/channels/GUILD_ID/CHANNEL_ID/MESSAGE_ID` is pulled apart
+into the IDs it carries. Whatever the input named, each decoded ID gains a
+`Kind` row saying what it is, and `--json` payloads gain a matching `label`:
+
+```console
+$ dkit snowflake "<@80351110224678912>" "<#103735883630395392>"
+80351110224678912
+  Kind         user
+  Created      2015-08-10T17:26:37.529Z
+  Unix ms      1439227597529
+  Discord ms   19157197529
+  Worker ID    0
+  Process ID   1
+  Increment    0
+
+103735883630395392
+  Kind         channel
+  Created      2015-10-14T06:09:21.977Z
+  Unix ms      1444802961977
+  Discord ms   24732561977
+  Worker ID    0
+  Process ID   4
+  Increment    0
+```
+
+```console
+$ dkit snowflake "https://discord.com/channels/175928847299117063/103735883630395392/175928847299117064"
+175928847299117063
+  Kind         guild
+  Created      2016-04-30T11:18:25.796Z
+  Unix ms      1462015105796
+  Discord ms   41944705796
+  Worker ID    1
+  Process ID   0
+  Increment    7
+
+103735883630395392
+  Kind         channel
+  Created      2015-10-14T06:09:21.977Z
+  Unix ms      1444802961977
+  Discord ms   24732561977
+  Worker ID    0
+  Process ID   4
+  Increment    0
+
+175928847299117064
+  Kind         message
+  Created      2016-04-30T11:18:25.796Z
+  Unix ms      1462015105796
+  Discord ms   41944705796
+  Worker ID    1
+  Process ID   0
+  Increment    8
+```
+
+A direct-message link puts `@me` where the guild ID would be, so that slot is
+skipped and a warning is printed on stderr instead.
+
 The reverse direction gives you the lowest snowflake for a point in time, which
 is what you want for `before`/`after` pagination:
 
