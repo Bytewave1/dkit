@@ -112,7 +112,7 @@ positional arguments:
   <command>
     snowflake  decode snowflake IDs, or build one from a date
     perms      decode a permissions integer, or build one from names
-    invite     build an OAuth2 invite URL for your bot
+    invite     build or decode an OAuth2 invite URL for your bot
     intents    convert gateway intent names to the integer and back
     timestamp  format a timestamp as a Discord <t:...> tag
     locales    look up Discord locale codes
@@ -333,6 +333,25 @@ Invite URL
 - `--scopes` defaults to `bot,applications.commands` and is validated against
   the official scope list, with suggestions for near-misses.
 - Scopes are joined with `%20`, matching the documented encoding.
+
+Read an existing invite URL back into its parts with `--decode` (no network
+access; only the URL text is parsed). Scope separators encoded as `%20` or `+`
+are both accepted:
+
+```console
+$ dkit invite --decode \
+    'https://discord.com/oauth2/authorize?client_id=157730590492196864&permissions=2048&scope=bot%20applications.commands'
+Decoded invite
+  https://discord.com/oauth2/authorize?client_id=157730590492196864&permissions=2048&scope=bot%20applications.commands
+
+  Client ID    157730590492196864
+  Scopes       bot, applications.commands
+  Permissions  2048
+    - SEND_MESSAGES
+```
+
+A URL without `permissions` is valid and reports `none`. `--decode` cannot be
+combined with `--client-id`, `--perms` or `--scopes`.
 
 ### `dkit intents` — intent names ↔ integer, with privileged warnings
 

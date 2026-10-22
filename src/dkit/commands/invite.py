@@ -1,10 +1,10 @@
-"""``dkit invite`` - build a correct OAuth2 bot invite URL."""
+"""``dkit invite`` - build or decode an OAuth2 bot invite URL."""
 
 from __future__ import annotations
 
 import argparse
 from typing import Any
-from urllib.parse import quote, urlencode
+from urllib.parse import parse_qs, quote, urlencode, urlparse
 
 from dkit.commands.perms import permission_flags
 from dkit.core import data
@@ -15,7 +15,8 @@ from dkit.core.registry import Command
 from dkit.core.suggest import suggestion_hint
 
 DESCRIPTION = """\
-Build an OAuth2 authorization URL that adds your application to a server.
+Build an OAuth2 authorization URL that adds your application to a server, or
+decode an existing invite URL back into its parts with --decode.
 Permissions may be given as names or as an integer; query parameters are
 URL-encoded, with scopes separated by %20 as the official documentation shows.
 """
@@ -94,11 +95,97 @@ def build_url(client_id: str, scopes: list[str], permissions: int | None) -> str
     return f"{_oauth2()['authorize_url']}?{query}"
 
 
+def decode_url(raw: str) -> dict[str, Any]:
+    """Parse an OAuth2 authorization URL into its client ID, scopes and permissions.
+
+    No network access: only the URL text is inspected. Scope separators encoded
+    as ``%20`` or ``+`` are both accepted.
+    """
+    candidate = raw.strip()
+    if not candidate:
+        raise UsageError(
+            "URL is empty",
+            hint=(
+                "pass an OAuth2 authorization URL, e.g. "
+                "https://discord.com/oauth2/authorize?client_id=..."
+            ),
+        )
+
+    parsed = urlparse(candidate)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        raise UsageError(
+            f"not a URL: {raw!r}",
+            hint=(
+                "pass an OAuth2 authorization URL, e.g. "
+                "https://discord.com/oauth2/authorize?client_id=..."
+            ),
+        )
+
+    # parse_qs turns both %20 and + into spaces in the scope value.
+    query = parse_qs(parsed.query, keep_blank_values=True)
+
+    if "client_id" not in query or not query["client_id"][0]:
+        raise UsageError(
+            "URL is missing client_id",
+            hint="the authorize URL must include a numeric client_id query parameter",
+        )
+
+    client_id_raw = query["client_id"][0]
+    if not client_id_raw.isdigit():
+        raise UsageError(
+            f"client_id must be numeric: {client_id_raw!r}",
+            hint=("an application (client) ID is a Discord snowflake, e.g. 157730590492196864"),
+        )
+    client_id = client_id_raw
+
+    scopes: list[str] = []
+    if "scope" in query and query["scope"][0]:
+        scopes = query["scope"][0].split()
+
+    permissions: int | None = None
+    permission_names: list[str] = []
+    unknown_bits: list[int] = []
+    warnings: list[str] = []
+
+    if "permissions" in query:
+        perms_raw = query["permissions"][0]
+        if not looks_like_int(perms_raw):
+            raise UsageError(
+                f"permissions is not an integer: {perms_raw!r}",
+                hint="permissions must be a non-negative decimal integer",
+            )
+        permissions = parse_int(perms_raw, what="permissions")
+        flags = permission_flags()
+        permission_names = [flag.name for flag in flags.flags_in(permissions)]
+        unknown_bits = flags.unknown_bits(permissions)
+        if unknown_bits:
+            warnings.append(
+                "value contains bits dkit has no name for: "
+                + ", ".join(str(bit) for bit in unknown_bits)
+                + f" (data last verified {data.provenance('permissions')['last_verified']})"
+            )
+
+    return {
+        "url": candidate,
+        "client_id": client_id,
+        "scopes": scopes,
+        "permissions": None if permissions is None else str(permissions),
+        "permission_names": permission_names,
+        "unknown_bits": unknown_bits,
+        "warnings": warnings,
+        "source": data.provenance("oauth2"),
+    }
+
+
 def add_arguments(parser: argparse.ArgumentParser) -> None:
     """Register the arguments of ``dkit invite``."""
     parser.add_argument(
+        "--decode",
+        metavar="URL",
+        help="read an existing OAuth2 invite URL back into its parts",
+    )
+    parser.add_argument(
         "--client-id",
-        required=True,
         metavar="ID",
         help="your application's client ID (a numeric snowflake)",
     )
@@ -116,6 +203,30 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
 def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
     """Execute ``dkit invite``."""
+    if args.decode is not None:
+        conflicts = [
+            name
+            for name, value in (
+                ("--client-id", args.client_id),
+                ("--perms", args.perms),
+                ("--scopes", args.scopes),
+            )
+            if value is not None
+        ]
+        if conflicts:
+            joined = ", ".join(conflicts)
+            raise UsageError(
+                f"--decode cannot be combined with {joined}",
+                hint="decode an existing URL, or build a new one, but not both at once",
+            )
+        return _run_decode(args.decode, out)
+
+    if args.client_id is None:
+        raise UsageError(
+            "--client-id is required (or pass --decode URL)",
+            hint="example: dkit invite --client-id 157730590492196864",
+        )
+
     client_id = validate_client_id(args.client_id)
     scopes = validate_scopes(args.scopes)
     permissions, permission_names = resolve_permissions(args.perms)
@@ -156,9 +267,31 @@ def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
     }
 
 
+def _run_decode(raw_url: str, out: Printer) -> dict[str, Any]:
+    payload = decode_url(raw_url)
+
+    out.heading("Decoded invite")
+    out.line(f"  {out.style(payload['url'], 'blue', 'bold')}")
+    out.line()
+    out.field("Client ID", payload["client_id"])
+    scopes = payload["scopes"]
+    out.field("Scopes", ", ".join(scopes) if scopes else out.style("(none)", "dim"))
+    if payload["permissions"] is None:
+        out.field("Permissions", out.style("none", "dim"))
+    else:
+        out.field("Permissions", payload["permissions"])
+        for name in payload["permission_names"]:
+            out.line(f"    {out.style('-', 'dim')} {name}")
+        unknown = payload["unknown_bits"]
+        if unknown:
+            out.line(f"  unknown bits: {', '.join(str(bit) for bit in unknown)}")
+    out.warnings(payload["warnings"])
+    return payload
+
+
 COMMAND = Command(
     name="invite",
-    help="build an OAuth2 invite URL for your bot",
+    help="build or decode an OAuth2 invite URL for your bot",
     description=DESCRIPTION,
     add_arguments=add_arguments,
     run=run,
@@ -167,5 +300,8 @@ COMMAND = Command(
         "  dkit invite --client-id 157730590492196864\n"
         "  dkit invite --client-id 157730590492196864 --perms SEND_MESSAGES,EMBED_LINKS\n"
         "  dkit invite --client-id 157730590492196864 --perms 68608 --scopes bot\n"
+        "  dkit invite --decode "
+        "'https://discord.com/oauth2/authorize?client_id=157730590492196864"
+        "&scope=bot%20applications.commands&permissions=2048'\n"
     ),
 )
