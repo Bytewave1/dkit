@@ -7,16 +7,16 @@ from dkit.core import data
 from dkit.core.errors import UsageError
 
 APPROVED_PARTNERS_SCOPES = {
-    'applications.builds.upload',
-    'dm_channels.read',
-    'identify.premium',
-    'relationships.read',
-    'rpc',
-    'rpc.activities.write',
-    'rpc.notifications.read',
-    'rpc.voice.read',
-    'rpc.voice.write',
-    'voice',
+    "applications.builds.upload",
+    "dm_channels.read",
+    "identify.premium",
+    "relationships.read",
+    "rpc",
+    "rpc.activities.write",
+    "rpc.notifications.read",
+    "rpc.voice.read",
+    "rpc.voice.write",
+    "voice",
 }
 
 
@@ -91,9 +91,7 @@ def test_cli_search_matches_name_and_description(cli) -> None:
 
 def test_cli_search_is_case_insensitive(cli) -> None:
     payload = cli("--json", "scopes", "--search", "BEARER").json
-    assert any(
-        "client credentials" in entry["description"] for entry in payload["scopes"]
-    )
+    assert any("client credentials" in entry["description"] for entry in payload["scopes"])
 
 
 def test_cli_lookup_cannot_be_combined_with_search(cli) -> None:
@@ -118,7 +116,23 @@ def test_cli_marks_approval_scopes_in_list_mode(cli) -> None:
 
 def test_cli_provenance_in_json(cli) -> None:
     payload = cli("--json", "scopes").json
-    assert payload["source"]["source"].startswith(
-        "https://github.com/discord/discord-api-docs"
-    )
+    assert payload["source"]["source"].startswith("https://github.com/discord/discord-api-docs")
     assert payload["source"]["last_verified"] == "2026-10-22"
+
+
+def test_search_empty_text_raises_usage_error() -> None:
+    from dkit.commands.scopes import _search
+
+    try:
+        _search("", scopes())
+    except UsageError as err:
+        assert "no search text given" in str(err)
+        assert "dkit scopes --search" in (err.hint or "")
+    else:
+        raise AssertionError("expected UsageError")
+
+
+def test_cli_search_no_matches(cli) -> None:
+    result = cli("scopes", "--search", "xyznonexistent")
+    assert result.exit_code == 0
+    assert "(no scopes match)" in result.stdout
