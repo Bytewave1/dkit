@@ -116,6 +116,7 @@ positional arguments:
     intents    convert gateway intent names to the integer and back
     timestamp  format a timestamp as a Discord <t:...> tag
     locales    look up Discord locale codes
+    color      convert a color between decimal, hex and RGB
 
 options:
   -h, --help   show this help message and exit
@@ -484,6 +485,36 @@ Locales matching 'portug' (1)
 $ dkit locales en_US
 error: unknown locale: 'en_US'
   did you mean en-US?
+```
+
+### `dkit color` — convert a color between decimal, hex and RGB
+
+Discord embeds take `color` as a decimal integer, while people think in hex or
+RGB. `dkit color` prints all three:
+
+```console
+$ dkit color "#5865F2"
+Color
+  Integer      5793266
+  Hex          #5865F2
+  RGB          88, 101, 242
+
+  Use the integer for the embed 'color' field.
+```
+
+It accepts `#RRGGBB`, `RRGGBB`, `0xRRGGBB`, `#RGB` shorthand and a decimal
+integer, or the channels with `--rgb 88,101,242`. Bare digits are always
+decimal: `123456` is the integer 123456, while `#123456` and `0x123456` are
+the hex color. Quote a leading `#` in your shell. In a color terminal a small
+swatch of the color is shown; `--no-color` and pipes get plain text.
+
+Values above `0xFFFFFF`, negative values and RGB components outside 0-255
+exit with code 2:
+
+```console
+$ dkit color 16777216
+error: color is above 0xFFFFFF (16777215): '16777216'
+  Discord colors are 24-bit: 0 to 16777215
 ```
 
 ### `dkit channels` — Discord channel types

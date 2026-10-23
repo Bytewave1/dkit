@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `dkit flags` - decode a user's public_flags / flags integer into the profile
   badge names it contains (or combine names back into the integer), with
   unknown bits reported, `0x`/`0b` input and `--json` support (#40).
+- `dkit color` - convert a color between the decimal integer of an embed
+  `color` field, hex and RGB. Accepts `#RRGGBB`, `RRGGBB`, `0xRRGGBB`, `#RGB`
+  and decimal input (bare digits are decimal), or `--rgb R,G,B`, with `--json`
+  support (@arvindkumar-ship-it, #52).
 
 ## [0.2.0] - 2026-10-22
 
