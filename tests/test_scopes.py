@@ -136,3 +136,32 @@ def test_cli_search_no_matches(cli) -> None:
     result = cli("scopes", "--search", "xyznonexistent")
     assert result.exit_code == 0
     assert "(no scopes match)" in result.stdout
+
+
+def test_cli_lookup_is_exact_not_casefolded(cli) -> None:
+    """`Identify` is not `identify`: lookup stays exact (case-sensitive)."""
+    result = cli("scopes", "Identify")
+    assert result.exit_code == 2
+    assert "unknown OAuth2 scope" in result.stderr
+
+
+def test_cli_search_matches_a_description_only_term(cli) -> None:
+    """`nitro` appears in no scope name, only in `identify.premium`'s description."""
+    payload = cli("--json", "scopes", "--search", "nitro").json
+    names = [entry["name"] for entry in payload["scopes"]]
+    assert "identify.premium" in names
+    assert all("nitro" not in name.casefold() for name in names)
+
+
+def test_cli_search_matches_a_name_only_term(cli) -> None:
+    """`identify` appears in no description, so it can only match via the name."""
+    payload = cli("--json", "scopes", "--search", "identify").json
+    names = [entry["name"] for entry in payload["scopes"]]
+    assert "identify" in names
+
+
+def test_cli_search_matches_a_name_only_term_case_insensitively(cli) -> None:
+    """The name branch of the search casefolds, e.g. `IDENTIFY` finds `identify`."""
+    payload = cli("--json", "scopes", "--search", "IDENTIFY").json
+    names = [entry["name"] for entry in payload["scopes"]]
+    assert "identify" in names
