@@ -6,6 +6,7 @@ import pytest
 
 from dkit.commands.flags import user_flags
 from dkit.core import data
+from dkit.core.bits import Flag, FlagSet
 from dkit.core.errors import UsageError
 
 #: VERIFIED_BOT | BOT_HTTP_INTERACTIONS - a value a typical bot user carries.
@@ -65,9 +66,7 @@ def test_unknown_name_raises_with_a_suggestion() -> None:
 
 def test_dataset_has_provenance() -> None:
     meta = data.provenance("user_flags")
-    assert meta["source"].startswith(
-        "https://github.com/discord/discord-api-docs"
-    )
+    assert meta["source"].startswith("https://github.com/discord/discord-api-docs")
     assert meta["source_rendered"].startswith("https://discord.com/developers/docs/")
     assert meta["last_verified"] <= "2026-10-22"
 
@@ -152,3 +151,16 @@ def test_cli_unknown_name_gives_a_suggestion(cli) -> None:
     assert result.exit_code == 2
     assert "unknown user flag name" in result.stderr
     assert "VERIFIED_DEVELOPER" in result.stderr
+
+
+def test_cli_flag_without_description(cli, monkeypatch) -> None:
+    """A flag with an empty description must not crash rendering."""
+    flags = list(user_flags())
+    flags.append(Flag(name="NO_DESC", bit=22, description=""))
+    monkeypatch.setattr(
+        "dkit.commands.flags.user_flags",
+        lambda: FlagSet(flags, label="user flag"),
+    )
+    result = cli("--json", "flags", str(1 << 22))
+    assert result.exit_code == 0
+    assert result.json["names"] == ["NO_DESC"]
