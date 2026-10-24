@@ -330,8 +330,9 @@ def test_cli_list_channel_type_is_case_insensitive(cli, channel_type: tuple[str,
     ]
 
 
-def test_cli_list_rejects_invalid_channel_type_with_hint(cli) -> None:
-    result = cli("perms", "--list", "--channel-type", "X")
+@pytest.mark.parametrize("channel_type", ["X", "TV", ""])
+def test_cli_list_rejects_invalid_channel_type_with_hint(cli, channel_type: str) -> None:
+    result = cli("perms", "--list", "--channel-type", channel_type)
     assert result.exit_code == 2
     assert "unknown channel type" in result.stderr
     assert "valid values: T (text), V (voice), S (stage)" in result.stderr
