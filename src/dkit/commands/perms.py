@@ -75,11 +75,29 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
         action="store_true",
         help="list every known permission with its bit value",
     )
+    parser.add_argument(
+        "--channel-type",
+        metavar="TYPE",
+        help="filter --list by channel type: T (text), V (voice), or S (stage)",
+    )
 
 
 def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
     """Execute ``dkit perms``."""
     modifying = args.add is not None or args.remove is not None
+    channel_type = args.channel_type
+    if channel_type is not None:
+        channel_type = channel_type.upper()
+        if channel_type not in ("T", "V", "S"):
+            raise UsageError(
+                f"unknown channel type: {args.channel_type!r}",
+                hint="valid values: T (text), V (voice), S (stage)",
+            )
+        if not args.list:
+            raise UsageError(
+                "--channel-type can only be used with --list",
+                hint="example: dkit perms --list --channel-type S",
+            )
 
     if args.list:
         if args.value is not None:
@@ -102,7 +120,7 @@ def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
                 "--list cannot be combined with --add or --remove",
                 hint="list every permission, or modify a number, but not both",
             )
-        return _list(permission_flags(), out)
+        return _list(permission_flags(), out, channel_type)
 
     if modifying and args.names is not None:
         raise UsageError(
@@ -345,8 +363,11 @@ def _diff(raw_first: str, raw_second: str, flags: FlagSet, out: Printer) -> dict
     }
 
 
-def _list(flags: FlagSet, out: Printer) -> dict[str, Any]:
-    sorted_flags = sorted(flags, key=lambda f: f.bit)
+def _list(flags: FlagSet, out: Printer, channel_type: str | None = None) -> dict[str, Any]:
+    sorted_flags = sorted(
+        (flag for flag in flags if channel_type is None or channel_type in flag.channel_types),
+        key=lambda f: f.bit,
+    )
 
     out.heading(f"Permissions ({len(sorted_flags)})")
     out.line()
@@ -367,11 +388,14 @@ def _list(flags: FlagSet, out: Printer) -> dict[str, Any]:
     verified = data.provenance("permissions")["last_verified"]
     out.note(f"  Data from the official table (verified {verified}).")
 
-    return {
+    payload: dict[str, Any] = {
         "permissions": [flag.as_dict() for flag in sorted_flags],
         "total": len(sorted_flags),
         "source": data.provenance("permissions"),
     }
+    if channel_type is not None:
+        payload["channel_type"] = channel_type
+    return payload
 
 
 COMMAND = Command(

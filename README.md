@@ -371,7 +371,11 @@ bit position, name, 64-bit hex value and decimal value:
 ```console
 $ dkit perms --list
 $ dkit perms --list --json
+$ dkit perms --list --channel-type S
 ```
+
+Use `--channel-type T`, `V` or `S` to show only permissions applicable to text,
+voice or stage channels. Values are case-insensitive.
 
 ### `dkit invite` — build an OAuth2 invite URL
 

@@ -278,6 +278,7 @@ def test_cli_list_returns_every_permission_in_bit_order(cli) -> None:
     payload = cli("--json", "perms", "--list").json
     permissions = payload["permissions"]
     assert payload["total"] == len(permissions) == len(permission_flags())
+    assert "channel_type" not in payload
 
     bits = [item["bit"] for item in permissions]
     assert bits == sorted(bits)
@@ -307,6 +308,39 @@ def test_cli_list_text_output(cli) -> None:
     assert "SEND_MESSAGES" in result.stdout
     assert "0x0000000000000800" in result.stdout
     assert "CREATE_INSTANT_INVITE" in result.stdout
+
+
+@pytest.mark.parametrize("channel_type", ["T", "V", "S"])
+def test_cli_list_filters_by_channel_type(cli, channel_type: str) -> None:
+    payload = cli("--json", "perms", "--list", "--channel-type", channel_type).json
+    expected = [flag.name for flag in permission_flags() if channel_type in flag.channel_types]
+    assert [permission["name"] for permission in payload["permissions"]] == expected
+    assert payload["total"] == len(expected)
+    assert payload["channel_type"] == channel_type
+    assert len(expected) < len(permission_flags())
+
+
+@pytest.mark.parametrize("channel_type", [("t", "T"), ("v", "V"), ("s", "S")])
+def test_cli_list_channel_type_is_case_insensitive(cli, channel_type: tuple[str, str]) -> None:
+    supplied, expected = channel_type
+    payload = cli("--json", "perms", "--list", "--channel-type", supplied).json
+    assert payload["channel_type"] == expected
+    assert [permission["name"] for permission in payload["permissions"]] == [
+        flag.name for flag in permission_flags() if expected in flag.channel_types
+    ]
+
+
+def test_cli_list_rejects_invalid_channel_type_with_hint(cli) -> None:
+    result = cli("perms", "--list", "--channel-type", "X")
+    assert result.exit_code == 2
+    assert "unknown channel type" in result.stderr
+    assert "valid values: T (text), V (voice), S (stage)" in result.stderr
+
+
+def test_cli_channel_type_requires_list(cli) -> None:
+    result = cli("perms", "--channel-type", "S")
+    assert result.exit_code == 2
+    assert "--channel-type can only be used with --list" in result.stderr
 
 
 @pytest.mark.parametrize(

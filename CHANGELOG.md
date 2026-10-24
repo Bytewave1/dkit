@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `dkit perms --list --channel-type T|V|S` - filter listed permissions by text,
+  voice or stage channel applicability.
 - `dkit invite --decode URL` - read an existing OAuth2 invite URL back into its
   client ID, scopes and permissions (names and unknown bits), with `--json`
   support (#35).
