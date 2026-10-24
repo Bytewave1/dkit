@@ -1,7 +1,7 @@
 {
     "source": "https://github.com/discord/discord-api-docs/blob/main/developers/topics/opcodes-and-status-codes.mdx",
     "source_rendered": "https://discord.com/developers/docs/topics/opcodes-and-status-codes",
-    "last_verified": "2026-10-25",
+    "last_verified": "2026-10-24",
     "http_codes": {
         "200": "The request completed successfully.",
         "201": "The entity was created successfully.",
