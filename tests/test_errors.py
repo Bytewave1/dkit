@@ -59,6 +59,31 @@ def test_cli_errors_search_is_case_sensitive(cli) -> None:
     assert uppercase.json["count"] == 0
 
 
+def test_cli_errors_search_matches_type(cli) -> None:
+    result = cli("--json", "errors", "--search", "http")
+    assert result.exit_code == 0
+    matches = result.json["error_codes"]
+    http_codes = [entry for entry in matches if entry["type"] == "http"]
+    assert len(http_codes) == 12
+    assert {entry["code"] for entry in http_codes} == {
+        entry["code"] for entry in error_codes() if entry["type"] == "http"
+    }
+
+
+def test_cli_errors_search_matches_code(cli) -> None:
+    result = cli("--json", "errors", "--search", "404")
+    assert result.exit_code == 0
+    matches = result.json["error_codes"]
+    assert [entry["code"] for entry in matches] == ["404"]
+    assert matches[0]["type"] == "http"
+
+
+def test_http_error_descriptions_match_documentation() -> None:
+    entries = {entry["code"]: entry for entry in error_codes() if entry["type"] == "http"}
+    assert entries["200"]["description"] == "The request completed successfully."
+    assert entries["201"]["description"] == "The entity was created successfully."
+
+
 def test_cli_errors_search_empty_and_conflicting_inputs(cli) -> None:
     empty = cli("errors", "--search", "   ")
     assert empty.exit_code == 2

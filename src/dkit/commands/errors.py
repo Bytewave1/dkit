@@ -12,7 +12,8 @@ from dkit.core.registry import Command
 
 DESCRIPTION = """\
 Look up an HTTP status code or Discord JSON error code, or list every known
-code. Use --search to find descriptions containing exact, case-sensitive text.
+code. Use --search to find matching types, codes, or descriptions with exact,
+case-sensitive text.
 HTTP codes include entries such as 404 and 5xx.
 """
 
