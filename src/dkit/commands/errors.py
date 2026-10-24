@@ -12,7 +12,8 @@ from dkit.core.registry import Command
 
 DESCRIPTION = """\
 Look up an HTTP status code or Discord JSON error code, or list every known
-code. HTTP codes include entries such as 404 and 5xx.
+code. Use --search to find descriptions containing exact, case-sensitive text.
+HTTP codes include entries such as 404 and 5xx.
 """
 
 
@@ -34,11 +35,38 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
         nargs="?",
         help="an HTTP status code or Discord JSON error code",
     )
+    parser.add_argument(
+        "--search",
+        metavar="TEXT",
+        help="list codes whose type, code, or description contains TEXT (case-sensitive)",
+    )
 
 
 def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
     """Execute ``dkit errors``."""
+    if args.value is not None and args.search is not None:
+        raise UsageError(
+            "an error code cannot be combined with --search",
+            hint="look up one code, or search for matching codes, but not both",
+        )
+
     entries = error_codes()
+    if args.search is not None:
+        query = args.search.strip()
+        if not query:
+            raise UsageError(
+                "no search text given", hint="example: dkit errors --search permissions"
+            )
+        matches = _search(query, entries)
+        _render_all(out, matches, title=f"Discord error codes matching {query!r}")
+        return {
+            "mode": "search",
+            "query": query,
+            "count": len(matches),
+            "error_codes": matches,
+            "source": data.provenance("error_codes"),
+        }
+
     if args.value is None:
         _render_all(out, entries)
         return {
@@ -64,6 +92,15 @@ def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
     }
 
 
+def _search(query: str, entries: list[dict[str, str]]) -> list[dict[str, str]]:
+    """Return entries containing ``query`` with case-sensitive matching."""
+    return [
+        entry
+        for entry in entries
+        if any(query in entry[field] for field in ("type", "code", "description"))
+    ]
+
+
 def _render_one(out: Printer, entry: dict[str, str]) -> None:
     """Render one HTTP or JSON error code."""
     out.heading("Discord error code")
@@ -72,9 +109,11 @@ def _render_one(out: Printer, entry: dict[str, str]) -> None:
     out.field("Description", entry["description"])
 
 
-def _render_all(out: Printer, entries: list[dict[str, str]]) -> None:
+def _render_all(
+    out: Printer, entries: list[dict[str, str]], *, title: str = "Discord error codes"
+) -> None:
     """Render every known HTTP and JSON error code."""
-    out.heading(f"Discord error codes ({len(entries)})")
+    out.heading(f"{title} ({len(entries)})")
     code_width = max((len(entry["code"]) for entry in entries), default=0)
     for entry in entries:
         code = entry["code"]
@@ -93,5 +132,6 @@ COMMAND = Command(
     run=run,
     epilog=(
         "examples:\n  dkit errors\n  dkit errors 404\n  dkit errors 50013\n  dkit errors 5xx\n"
+        "  dkit errors --search permissions\n"
     ),
 )

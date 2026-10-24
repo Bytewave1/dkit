@@ -44,6 +44,31 @@ def test_cli_errors_look_up_http_error_code(cli) -> None:
     assert result.json["code"] == "5xx"
 
 
+def test_cli_errors_search_is_case_sensitive(cli) -> None:
+    result = cli("--json", "errors", "--search", "permissions")
+    assert result.exit_code == 0
+    payload = result.json
+    assert payload["mode"] == "search"
+    assert payload["query"] == "permissions"
+    assert payload["count"] == len(payload["error_codes"])
+    assert payload["count"] > 0
+    assert all("permissions" in entry["description"] for entry in payload["error_codes"])
+
+    uppercase = cli("--json", "errors", "--search", "Permissions")
+    assert uppercase.exit_code == 0
+    assert uppercase.json["count"] == 0
+
+
+def test_cli_errors_search_empty_and_conflicting_inputs(cli) -> None:
+    empty = cli("errors", "--search", "   ")
+    assert empty.exit_code == 2
+    assert "no search text given" in empty.stderr
+
+    conflicting = cli("errors", "404", "--search", "permissions")
+    assert conflicting.exit_code == 2
+    assert "cannot be combined with --search" in conflicting.stderr
+
+
 def test_cli_errors_unknown_code(cli) -> None:
     result = cli("errors", "123456")
     assert result.exit_code == 2
