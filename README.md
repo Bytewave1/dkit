@@ -117,6 +117,7 @@ positional arguments:
     timestamp  format a timestamp as a Discord <t:...> tag
     locales    look up Discord locale codes
     color      convert a color between decimal, hex and RGB
+    errors     look up discord error codes
 
 options:
   -h, --help   show this help message and exit
