@@ -8,6 +8,7 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from collections.abc import Sequence
 
@@ -120,18 +121,39 @@ def main(argv: Sequence[str] | None = None) -> int:
         color=colors_enabled(no_color=no_color, stream=sys.stdout),
     )
 
-    if args.command is None:
-        parser.print_help()
-        return EXIT_OK
-
     try:
-        payload = args._run(args, out)
-    except DkitError as error:
-        out.error(str(error), hint=getattr(error, "hint", None))
-        return error.exit_code
+        if args.command is None:
+            parser.print_help()
+            return EXIT_OK
 
-    out.emit_json(payload)
-    return EXIT_OK
+        try:
+            payload = args._run(args, out)
+        except DkitError as error:
+            out.error(str(error), hint=getattr(error, "hint", None))
+            return error.exit_code
+
+        out.emit_json(payload)
+        return EXIT_OK
+    except BrokenPipeError:
+        # The reader (head, less, grep -m1, ...) closed the pipe. Exit quietly
+        # with the conventional SIGPIPE status instead of printing a traceback.
+        _silence_broken_pipe()
+        return 128 + 13
+
+
+def _silence_broken_pipe() -> None:
+    """Keep the interpreter from re-raising BrokenPipeError while flushing on exit."""
+    try:
+        sys.stdout.flush()
+    except BrokenPipeError:
+        pass
+    try:
+        fd = sys.stdout.fileno()
+    except (OSError, ValueError):
+        return
+    devnull = os.open(os.devnull, os.O_WRONLY)
+    os.dup2(devnull, fd)
+    os.close(devnull)
 
 
 if __name__ == "__main__":  # pragma: no cover

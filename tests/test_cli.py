@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import runpy
+import sys
 
 import pytest
 
@@ -228,3 +229,25 @@ def test_python_dash_m_dkit_runs_the_cli(capsys, monkeypatch) -> None:
         runpy.run_module("dkit", run_name="__main__")
     assert excinfo.value.code == EXIT_OK
     assert capsys.readouterr().out == f"dkit {__version__}\n"
+
+
+def test_broken_pipe_exits_quietly(monkeypatch) -> None:
+    """A closed downstream pipe exits with SIGPIPE status, no traceback."""
+
+    class _BrokenPipe:
+        encoding = "utf-8"
+
+        def isatty(self) -> bool:
+            return False
+
+        def write(self, _data: str) -> int:
+            raise BrokenPipeError()
+
+        def flush(self) -> None:
+            raise BrokenPipeError()
+
+        def fileno(self) -> int:
+            raise OSError("no underlying fd")
+
+    monkeypatch.setattr(sys, "stdout", _BrokenPipe())
+    assert main(["intents", "--list"]) == 128 + 13
