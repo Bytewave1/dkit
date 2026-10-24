@@ -24,6 +24,7 @@ DATASETS = (
     "locales",
     "channel_types",
     "user_flags",
+    "error_codes",
 )
 
 
