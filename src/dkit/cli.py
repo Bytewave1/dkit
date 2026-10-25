@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import errno
 import os
 import sys
 from collections.abc import Sequence
@@ -152,9 +153,13 @@ def _finish(code: int) -> int:
     """
     try:
         sys.stdout.flush()
-    except OSError:
-        _silence_broken_pipe()
-        return 128 + 13
+    except OSError as exc:
+        # Only a closed pipe (EPIPE on POSIX, EINVAL on Windows) is
+        # SIGPIPE; unrelated flush errors like ENOSPC must surface (#51).
+        if isinstance(exc, BrokenPipeError) or exc.errno == errno.EINVAL:
+            _silence_broken_pipe()
+            return 128 + 13
+        raise
     return code
 
 

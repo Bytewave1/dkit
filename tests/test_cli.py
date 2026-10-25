@@ -328,6 +328,30 @@ def test_a_windows_style_flush_error_is_silenced(monkeypatch) -> None:
     assert calls == [("dup2", 4242, 7), ("close", 4242)]
 
 
+def test_an_unrelated_flush_error_is_not_swallowed(monkeypatch) -> None:
+    """ENOSPC is a real output failure, not a closed pipe (#51)."""
+
+    class _NoSpace:
+        encoding = "utf-8"
+
+        def isatty(self) -> bool:
+            return False
+
+        def write(self, data: str) -> int:
+            return len(data)
+
+        def flush(self) -> None:
+            raise OSError(28, "No space left on device")
+
+        def fileno(self) -> int:
+            return 7
+
+    monkeypatch.setattr(sys, "stdout", _NoSpace())
+
+    with pytest.raises(OSError, match="No space left"):
+        main(["intents", "--list"])
+
+
 def test_a_really_closed_stdout_pipe_exits_quietly() -> None:
     """A reader that goes away mid-write leaves no traceback in a real process."""
     proc = subprocess.Popen(
