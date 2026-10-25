@@ -352,6 +352,31 @@ def test_an_unrelated_flush_error_is_not_swallowed(monkeypatch) -> None:
         main(["intents", "--list"])
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="EINVAL is a closed pipe on Windows")
+def test_an_unrelated_posix_einval_is_not_swallowed(monkeypatch) -> None:
+    """On POSIX, EINVAL from flush is not a closed pipe (#51)."""
+
+    class _InvalidArgument:
+        encoding = "utf-8"
+
+        def isatty(self) -> bool:
+            return False
+
+        def write(self, data: str) -> int:
+            return len(data)
+
+        def flush(self) -> None:
+            raise OSError(errno.EINVAL, "Invalid argument")
+
+        def fileno(self) -> int:
+            return 7
+
+    monkeypatch.setattr(sys, "stdout", _InvalidArgument())
+
+    with pytest.raises(OSError, match="Invalid argument"):
+        main(["intents", "--list"])
+
+
 def test_a_really_closed_stdout_pipe_exits_quietly() -> None:
     """A reader that goes away mid-write leaves no traceback in a real process."""
     proc = subprocess.Popen(

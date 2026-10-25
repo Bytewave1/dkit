@@ -156,7 +156,9 @@ def _finish(code: int) -> int:
     except OSError as exc:
         # Only a closed pipe (EPIPE on POSIX, EINVAL on Windows) is
         # SIGPIPE; unrelated flush errors like ENOSPC must surface (#51).
-        if isinstance(exc, BrokenPipeError) or exc.errno == errno.EINVAL:
+        if isinstance(exc, BrokenPipeError) or (
+            sys.platform == "win32" and exc.errno == errno.EINVAL
+        ):
             _silence_broken_pipe()
             return 128 + 13
         raise
