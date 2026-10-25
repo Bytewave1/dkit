@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import runpy
+import subprocess
 import sys
 
 import pytest
@@ -296,3 +297,50 @@ def test_broken_pipe_points_the_stdout_fd_at_devnull(monkeypatch) -> None:
         ("dup2", devnull_fd, stdout_fd),
         ("close", devnull_fd),
     ]
+
+
+def test_a_windows_style_flush_error_is_silenced(monkeypatch) -> None:
+    """Windows buffers the write and reports the closed pipe as OSError(EINVAL) at the flush."""
+
+    class _InvalidArgument:
+        encoding = "utf-8"
+
+        def isatty(self) -> bool:
+            return False
+
+        def write(self, data: str) -> int:
+            # The write only fills the buffer; the pipe's state surfaces at the flush.
+            return len(data)
+
+        def flush(self) -> None:
+            raise OSError(22, "Invalid argument")
+
+        def fileno(self) -> int:
+            return 7
+
+    calls: list[tuple[object, ...]] = []
+    monkeypatch.setattr("dkit.cli.os.open", lambda _path, _flags: 4242)
+    monkeypatch.setattr("dkit.cli.os.dup2", lambda src, dst: calls.append(("dup2", src, dst)))
+    monkeypatch.setattr("dkit.cli.os.close", lambda fd: calls.append(("close", fd)))
+    monkeypatch.setattr(sys, "stdout", _InvalidArgument())
+
+    assert main(["intents", "--list"]) == 128 + 13
+    assert calls == [("dup2", 4242, 7), ("close", 4242)]
+
+
+def test_a_really_closed_stdout_pipe_exits_quietly() -> None:
+    """A reader that goes away mid-write leaves no traceback in a real process."""
+    proc = subprocess.Popen(
+        [sys.executable, "-m", "dkit", "intents", "--list"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    assert proc.stdout is not None
+    assert proc.stderr is not None
+    # The reader goes away before dkit gets to write, as `| head -0` would.
+    proc.stdout.close()
+    stderr = proc.stderr.read().decode("utf-8", "replace")
+    proc.stderr.close()
+    code = proc.wait(timeout=30)
+    assert code == 128 + 13, stderr
+    assert "Traceback" not in stderr
