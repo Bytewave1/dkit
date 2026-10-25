@@ -8,6 +8,7 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import contextlib
 import os
 import sys
 from collections.abc import Sequence
@@ -143,10 +144,8 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 def _silence_broken_pipe() -> None:
     """Keep the interpreter from re-raising BrokenPipeError while flushing on exit."""
-    try:
+    with contextlib.suppress(BrokenPipeError):
         sys.stdout.flush()
-    except BrokenPipeError:
-        pass
     try:
         fd = sys.stdout.fileno()
     except (OSError, ValueError):

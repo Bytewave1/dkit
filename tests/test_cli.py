@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import runpy
 import sys
 
@@ -251,3 +252,47 @@ def test_broken_pipe_exits_quietly(monkeypatch) -> None:
 
     monkeypatch.setattr(sys, "stdout", _BrokenPipe())
     assert main(["intents", "--list"]) == 128 + 13
+
+
+def test_broken_pipe_points_the_stdout_fd_at_devnull(monkeypatch) -> None:
+    """When stdout has a real fd, it is redirected to devnull so the exit flush is quiet."""
+    calls: list[tuple[object, ...]] = []
+    devnull_fd = 4242
+    stdout_fd = 7
+
+    class _BrokenPipeWithFd:
+        encoding = "utf-8"
+
+        def isatty(self) -> bool:
+            return False
+
+        def write(self, _data: str) -> int:
+            raise BrokenPipeError()
+
+        def flush(self) -> None:
+            raise BrokenPipeError()
+
+        def fileno(self) -> int:
+            return stdout_fd
+
+    def fake_open(path: str, flags: int) -> int:
+        calls.append(("open", path, flags))
+        return devnull_fd
+
+    def fake_dup2(src: int, dst: int) -> None:
+        calls.append(("dup2", src, dst))
+
+    def fake_close(fd: int) -> None:
+        calls.append(("close", fd))
+
+    monkeypatch.setattr("dkit.cli.os.open", fake_open)
+    monkeypatch.setattr("dkit.cli.os.dup2", fake_dup2)
+    monkeypatch.setattr("dkit.cli.os.close", fake_close)
+    monkeypatch.setattr(sys, "stdout", _BrokenPipeWithFd())
+
+    assert main(["intents", "--list"]) == 128 + 13
+    assert calls == [
+        ("open", os.devnull, os.O_WRONLY),
+        ("dup2", devnull_fd, stdout_fd),
+        ("close", devnull_fd),
+    ]
