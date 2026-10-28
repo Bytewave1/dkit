@@ -379,6 +379,60 @@ def test_an_unrelated_posix_einval_is_not_swallowed(monkeypatch) -> None:
         main(["intents", "--list"])
 
 
+def test_a_windows_flush_enospc_is_not_swallowed(monkeypatch) -> None:
+    """On Windows only the closed-pipe errno is SIGPIPE; a full disk must surface (#51)."""
+    monkeypatch.setattr(sys, "platform", "win32")
+
+    class _NoSpace:
+        encoding = "utf-8"
+
+        def isatty(self) -> bool:
+            return False
+
+        def write(self, data: str) -> int:
+            return len(data)
+
+        def flush(self) -> None:
+            raise OSError(errno.ENOSPC, "No space left on device")
+
+        def fileno(self) -> int:
+            return 7
+
+    monkeypatch.setattr(sys, "stdout", _NoSpace())
+
+    with pytest.raises(OSError, match="No space left"):
+        main(["intents", "--list"])
+
+
+def test_no_command_swallows_a_windows_style_closed_pipe(monkeypatch) -> None:
+    """The bare `dkit` help path flushes through _finish too, so a Windows closed pipe is quiet."""
+    monkeypatch.setattr(sys, "platform", "win32")
+
+    class _InvalidArgument:
+        encoding = "utf-8"
+
+        def isatty(self) -> bool:
+            return False
+
+        def write(self, data: str) -> int:
+            return len(data)
+
+        def flush(self) -> None:
+            raise OSError(errno.EINVAL, "Invalid argument")
+
+        def fileno(self) -> int:
+            return 7
+
+    calls: list[tuple[object, ...]] = []
+    monkeypatch.setattr("dkit.cli.os.open", lambda _path, _flags: 4242)
+    monkeypatch.setattr("dkit.cli.os.dup2", lambda src, dst: calls.append(("dup2", src, dst)))
+    monkeypatch.setattr("dkit.cli.os.close", lambda fd: calls.append(("close", fd)))
+    monkeypatch.setattr(sys, "stdout", _InvalidArgument())
+
+    assert main([]) == 128 + 13
+    assert calls == [("dup2", 4242, 7), ("close", 4242)]
+
+
 def test_a_really_closed_stdout_pipe_exits_quietly() -> None:
     """A reader that goes away mid-write leaves no traceback in a real process."""
     proc = subprocess.Popen(
