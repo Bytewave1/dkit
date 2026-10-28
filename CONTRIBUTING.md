@@ -41,38 +41,74 @@ check that the data files end up inside the wheel.
 ## Project layout
 
 ```
-src/dkit/
-├─ cli.py                 argparse root: global flags, dispatch, exit codes
-├─ commands/
-│  ├─ __init__.py         COMMANDS - the registry you add your command to
-│  ├─ snowflake.py        one module per command
-│  ├─ perms.py
-│  ├─ invite.py
-│  └─ intents.py
-├─ core/
-│  ├─ bits.py             Flag / FlagSet - the shared bitfield engine
-│  ├─ data.py             cached JSON data loading + provenance
-│  ├─ errors.py           UsageError, exit codes
-│  ├─ output.py           Printer: text vs --json, colors
-│  ├─ parse.py            integer, name-list and ISO-8601 parsing
-│  ├─ registry.py         the Command record
-│  └─ suggest.py          "did you mean ...?"
-└─ data/                  the JSON data files
+dkit/
+├─ src/dkit/                      the package
+│  ├─ __init__.py                 package version (__version__)
+│  ├─ __main__.py                 python -m dkit entry point
+│  ├─ cli.py                      argparse root: global flags, dispatch, exit codes
+│  ├─ py.typed                    PEP 561 marker for the inline type hints
+│  ├─ commands/                   one module per command
+│  │  ├─ __init__.py              COMMANDS - the registry you add your command to
+│  │  ├─ channels.py              look up Discord channel types
+│  │  ├─ color.py                 convert colors between decimal, hex and RGB
+│  │  ├─ completion.py            print shell completion scripts and candidates
+│  │  ├─ errors.py                look up Discord HTTP and JSON error codes
+│  │  ├─ flags.py                 decode user flags (profile badges) into names
+│  │  ├─ intents.py               translate gateway intent names and integers
+│  │  ├─ invite.py                build or decode an OAuth2 bot invite URL
+│  │  ├─ locales.py               look up the locale codes Discord accepts
+│  │  ├─ perms.py                 translate permission integers and names
+│  │  ├─ scopes.py                look up Discord OAuth2 scopes
+│  │  ├─ snowflake.py             decode snowflake IDs, or build one from a date
+│  │  └─ timestamp.py             format a timestamp as a Discord <t:...> tag
+│  ├─ core/                       shared building blocks
+│  │  ├─ __init__.py              shared building blocks used by every command
+│  │  ├─ bits.py                  Flag / FlagSet - the shared bitfield engine
+│  │  ├─ data.py                  cached JSON data loading + provenance
+│  │  ├─ errors.py                UsageError, exit codes
+│  │  ├─ output.py                Printer: text vs --json, colors
+│  │  ├─ parse.py                 integer, name-list and ISO-8601 parsing
+│  │  ├─ registry.py              the Command record
+│  │  └─ suggest.py               "did you mean ...?"
+│  └─ data/                       the bundled JSON data files
+│     ├─ channel_types.json       Discord channel types (value and description)
+│     ├─ error_codes.json         Discord HTTP and JSON error codes
+│     ├─ intents.json             gateway intents and privileged flags
+│     ├─ locales.json             accepted locale codes and language names
+│     ├─ oauth2.json              OAuth2 authorize URL and scopes
+│     ├─ permissions.json         bitwise permission flags
+│     ├─ snowflake.json           Discord epoch and snowflake bit layout
+│     ├─ timestamp_styles.json    <t:...> timestamp styles and examples
+│     └─ user_flags.json          user flags (profile badges)
+├─ tests/                         pytest suite, one test module per command
+├─ docs/                          extra documentation
+│  └─ ISSUES.md                   good-first-issue write-ups
+├─ .github/workflows/             continuous integration
+│  └─ ci.yml                      the CI matrix (lint, tests, packaging)
+├─ pyproject.toml                 packaging, dev extras, ruff and pytest config
+├─ MANIFEST.in                    extra files that ship in the sdist
+├─ CONTRIBUTING.md                this guide
+├─ README.md                      user-facing documentation
+├─ CHANGELOG.md                   release history
+└─ LICENSE                        MIT license
 ```
+
+When you add a command or a data file, update this tree in the same pull request
+so it stays an accurate map of where everything lives.
 
 ## How to add a new command
 
 Adding a command means **writing one file and adding one line**. Say you want
-`dkit channels`.
+`dkit stickers`.
 
-### 1. Create `src/dkit/commands/channels.py`
+### 1. Create `src/dkit/commands/stickers.py`
 
 A command module exposes a `COMMAND` object. The two functions it points at are
 `add_arguments` (register flags) and `run` (do the work, return the JSON
 payload).
 
 ```python
-"""``dkit channels`` - list Discord channel types."""
+"""``dkit stickers`` - look up Discord sticker formats."""
 
 from __future__ import annotations
 
@@ -86,63 +122,85 @@ from dkit.core.registry import Command
 
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
-    """Register the arguments of ``dkit channels``."""
-    parser.add_argument("value", metavar="TYPE", nargs="?", help="a channel type")
+    """Register the arguments of ``dkit stickers``."""
+    parser.add_argument("value", metavar="FORMAT", nargs="?", help="a sticker format")
 
 
 def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
-    """Execute ``dkit channels``. The return value is the --json payload."""
+    """Execute ``dkit stickers``. The return value is the --json payload."""
     if args.value is None:
-        raise UsageError("no channel type given", hint="example: dkit channels 0")
+        raise UsageError("no sticker format given", hint="example: dkit stickers png")
 
     # Text output. These calls are no-ops when --json is in effect, so you
     # never have to branch on the output mode yourself.
-    out.heading("Channel type")
-    out.field("Name", "GUILD_TEXT")
+    out.heading("Sticker format")
+    out.field("Name", "PNG")
 
-    return {"name": "GUILD_TEXT", "value": 0, "source": data.provenance("channels")}
+    return {"name": "PNG", "value": 1, "source": data.provenance("sticker_formats")}
 
 
 COMMAND = Command(
-    name="channels",
-    help="look up Discord channel types",
-    description="Longer text shown by 'dkit channels --help'.",
+    name="stickers",
+    help="look up Discord sticker formats",
+    description="Longer text shown by 'dkit stickers --help'.",
     add_arguments=add_arguments,
     run=run,
-    epilog="examples:\n  dkit channels 0\n",
+    epilog="examples:\n  dkit stickers png\n",
 )
 ```
 
 ### 2. Register it in `src/dkit/commands/__init__.py`
 
 ```python
-from dkit.commands import channels, intents, invite, perms, snowflake
+from dkit.commands import (
+    channels,
+    color,
+    completion,
+    errors,
+    flags,
+    intents,
+    invite,
+    locales,
+    perms,
+    scopes,
+    snowflake,
+    stickers,
+    timestamp,
+)
 
 COMMANDS: tuple[Command, ...] = (
     snowflake.COMMAND,
     perms.COMMAND,
     invite.COMMAND,
     intents.COMMAND,
-    channels.COMMAND,  # <- add this
+    timestamp.COMMAND,
+    locales.COMMAND,
+    channels.COMMAND,
+    errors.COMMAND,
+    color.COMMAND,
+    scopes.COMMAND,
+    completion.COMMAND,
+    flags.COMMAND,
+    stickers.COMMAND,  # <- add this
 )
 ```
 
 That is all the wiring. Global flags, `--json`, colors, error handling and exit
 codes are applied by `cli.py` for every registered command.
 
-### 3. Add `tests/test_channels.py`
+### 3. Add `tests/test_stickers.py`
 
 Use the `cli` fixture from `tests/conftest.py`, which runs the CLI in-process
 and captures stdout, stderr and the exit code:
 
 ```python
 def test_cli_json(cli) -> None:
-    payload = cli("--json", "channels", "0").json
-    assert payload["name"] == "GUILD_TEXT"
+    payload = cli("--json", "stickers", "png").json
+    assert payload["name"] == "PNG"
 
 
 def test_invalid_input_exits_with_code_2(cli) -> None:
-    result = cli("channels")
+    result = cli("stickers")
     assert result.exit_code == 2
     assert result.stderr.startswith("error:")
 ```
