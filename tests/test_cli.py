@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import errno
 import json
 import os
 import runpy
@@ -301,6 +302,7 @@ def test_broken_pipe_points_the_stdout_fd_at_devnull(monkeypatch) -> None:
 
 def test_a_windows_style_flush_error_is_silenced(monkeypatch) -> None:
     """Windows buffers the write and reports the closed pipe as OSError(EINVAL) at the flush."""
+    monkeypatch.setattr(sys, "platform", "win32")
 
     class _InvalidArgument:
         encoding = "utf-8"
