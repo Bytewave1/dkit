@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Make `dkit errors --search` case-insensitive (#73).
+- CI now also tests on Python 3.14, and the package metadata lists the 3.14
+  classifier (#75).
 
 ## [0.3.0] - 2026-10-28
 
