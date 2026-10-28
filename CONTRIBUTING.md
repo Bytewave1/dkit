@@ -58,6 +58,7 @@ dkit/
 │  │  ├─ invite.py                build or decode an OAuth2 bot invite URL
 │  │  ├─ locales.py               look up the locale codes Discord accepts
 │  │  ├─ perms.py                 translate permission integers and names
+│  │  ├─ scheduled_events.py      look up Discord guild scheduled event types
 │  │  ├─ scopes.py                look up Discord OAuth2 scopes
 │  │  ├─ snowflake.py             decode snowflake IDs, or build one from a date
 │  │  └─ timestamp.py             format a timestamp as a Discord <t:...> tag
@@ -77,6 +78,7 @@ dkit/
 │     ├─ locales.json             accepted locale codes and language names
 │     ├─ oauth2.json              OAuth2 authorize URL and scopes
 │     ├─ permissions.json         bitwise permission flags
+│     ├─ scheduled_event_types.json  scheduled event entity types, privacy levels and statuses
 │     ├─ snowflake.json           Discord epoch and snowflake bit layout
 │     ├─ timestamp_styles.json    <t:...> timestamp styles and examples
 │     └─ user_flags.json          user flags (profile badges)
@@ -152,36 +154,11 @@ COMMAND = Command(
 ### 2. Register it in `src/dkit/commands/__init__.py`
 
 ```python
-from dkit.commands import (
-    channels,
-    color,
-    completion,
-    errors,
-    flags,
-    intents,
-    invite,
-    locales,
-    perms,
-    scopes,
-    snowflake,
-    stickers,
-    timestamp,
-)
+from dkit.commands import ..., stickers  # stickers is only an example
 
 COMMANDS: tuple[Command, ...] = (
-    snowflake.COMMAND,
-    perms.COMMAND,
-    invite.COMMAND,
-    intents.COMMAND,
-    timestamp.COMMAND,
-    locales.COMMAND,
-    channels.COMMAND,
-    errors.COMMAND,
-    color.COMMAND,
-    scopes.COMMAND,
-    completion.COMMAND,
-    flags.COMMAND,
-    stickers.COMMAND,  # <- add this
+    ...,
+    stickers.COMMAND,  # <- add your command here
 )
 ```
 
