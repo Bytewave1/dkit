@@ -433,6 +433,28 @@ def test_no_command_swallows_a_windows_style_closed_pipe(monkeypatch) -> None:
     assert calls == [("dup2", 4242, 7), ("close", 4242)]
 
 
+def test_a_closed_stdout_object_is_still_silenced(monkeypatch) -> None:
+    """If stdout was already closed, fileno() raises ValueError and must not escape."""
+
+    class _Closed:
+        encoding = "utf-8"
+
+        def isatty(self) -> bool:
+            return False
+
+        def write(self, _data: str) -> int:
+            raise BrokenPipeError()
+
+        def flush(self) -> None:
+            raise BrokenPipeError()
+
+        def fileno(self) -> int:
+            raise ValueError("I/O operation on closed file")
+
+    monkeypatch.setattr(sys, "stdout", _Closed())
+    assert main(["intents", "--list"]) == 128 + 13
+
+
 def test_a_really_closed_stdout_pipe_exits_quietly() -> None:
     """A reader that goes away mid-write leaves no traceback in a real process."""
     proc = subprocess.Popen(
