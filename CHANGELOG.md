@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-28
+
 ### Added
 
-- `dkit errors` - Command for finding specific error codes of discord bots. (#62)
+- `dkit perms --add` / `--remove` — modify an existing permissions integer by
+  name (add first, then remove), preserving unknown bits, with `--json` support
+  (#36).
+- `dkit errors` - look up a Discord JSON error code or an HTTP status code, or search all codes by text, with `--json` support (#62).
 - `dkit perms --list --channel-type T|V|S` - filter listed permissions by text,
   voice or stage channel applicability. (#59)
 - `dkit invite --decode URL` - read an existing OAuth2 invite URL back into its
@@ -47,9 +52,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `dkit perms --add` / `--remove` — modify an existing permissions integer by
-  name (add first, then remove), preserving unknown bits, with `--json` support
-  (#36).
 - `dkit perms --list` — print every known permission with its bit position,
   name, hex and decimal value in bit order, with `--json` support (#25).
 - `dkit timestamp now` — format the current UTC time truncated to whole seconds,
@@ -99,7 +101,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Discord constants in `dkit/data/*.json`, each with a `source` URL and a
   `last_verified` date.
 
-[Unreleased]: https://github.com/Bytewave1/dkit/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Bytewave1/dkit/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/Bytewave1/dkit/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Bytewave1/dkit/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/Bytewave1/dkit/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/Bytewave1/dkit/releases/tag/v0.1.0
