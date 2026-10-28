@@ -1,0 +1,15 @@
+version: 2
+updates:
+  # Keep the GitHub Actions used in .github/workflows up to date.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      # Matches the repository commit style: type(scope): description
+      prefix: "chore(deps)"
+    groups:
+      # Collect every Action bump into a single PR per week.
+      github-actions:
+        patterns:
+          - "*"
