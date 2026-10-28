@@ -17,6 +17,7 @@ from dkit.commands import (
     invite,
     locales,
     perms,
+    scheduled_events,
     scopes,
     snowflake,
     timestamp,
@@ -37,6 +38,7 @@ COMMANDS: tuple[Command, ...] = (
     scopes.COMMAND,
     completion.COMMAND,
     flags.COMMAND,
+    scheduled_events.COMMAND,
 )
 
 __all__ = ["COMMANDS"]

@@ -675,6 +675,52 @@ OAuth2 scopes matching 'voice' (3)
 An unknown scope name gets the same "did you mean" help as the other commands,
 and `dkit --json scopes` returns the full dataset entries with provenance.
 
+### `dkit scheduled-events` — scheduled event types, privacy levels and statuses
+
+Look up the enums of guild scheduled events: entity types, privacy levels and
+statuses. They are plain integers, not bitfields, and the numbers overlap
+between groups (`2` is `VOICE`, `GUILD_ONLY` and `ACTIVE`), so the group
+(`entity`, `privacy` or `status`) is always required. Look a value up by name or
+number, list a group, or search a group by name and description:
+
+```console
+$ dkit scheduled-events status 4
+Status
+  Name         CANCELED
+  Value        4
+  Final        yes, the status can no longer be updated
+
+$ dkit scheduled-events entity EXTERNAL
+Entity type
+  Name         EXTERNAL
+  Value        3
+
+$ dkit scheduled-events status --search act
+Status values matching 'act' (1)
+   2  ACTIVE
+```
+
+`--transitions` prints the status transitions Discord documents as valid, and
+that a completed or canceled event can no longer be updated:
+
+```console
+$ dkit scheduled-events --transitions
+Valid status transitions (3)
+  SCHEDULED -> ACTIVE
+  ACTIVE -> COMPLETED
+  SCHEDULED -> CANCELED
+
+  Once status is set to COMPLETED or CANCELED, the status can no longer be updated.
+```
+
+Unknown groups or values exit with code 2 and a hint:
+
+```console
+$ dkit scheduled-events status 9
+error: unknown status integer: '9'
+  run 'dkit scheduled-events status' to list the values of this group
+```
+
 ### JSON output
 
 ```console
@@ -807,6 +853,7 @@ No Discord constant is hard-coded in logic. They all live in
 | `timestamp_styles.json` | The nine `<t:...>` timestamp styles and their examples | [reference#message-formatting-timestamp-styles](https://discord.com/developers/docs/reference#message-formatting-timestamp-styles) |
 | `locales.json` | The 32 locale codes and their language names | [reference#locales](https://discord.com/developers/docs/reference#locales) |
 | `channel_types.json` | The 13 channel types, integer values and descriptions | [resources/channel#channel-object-channel-types](https://discord.com/developers/docs/resources/channel#channel-object-channel-types) |
+| `scheduled_event_types.json` | Guild scheduled event entity types, privacy levels, statuses and the valid status transitions | [resources/guild-scheduled-event](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-entity-types) |
 
 Each file records a `source` URL and a `last_verified` date. Two details worth
 knowing, both faithful to the official tables:

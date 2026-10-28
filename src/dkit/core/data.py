@@ -25,6 +25,7 @@ DATASETS = (
     "channel_types",
     "user_flags",
     "error_codes",
+    "scheduled_event_types",
 )
 
 

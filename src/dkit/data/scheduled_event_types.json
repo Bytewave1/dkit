@@ -1,0 +1,82 @@
+{
+  "_comment": "Guild scheduled event enums from the official Guild Scheduled Event resource. Values are plain integers, not bitfields. Only what the docs state is listed: they give no description for entity types and statuses, so those stay null.",
+  "source": "https://github.com/discord/discord-api-docs/blob/main/developers/resources/guild-scheduled-event.mdx",
+  "source_rendered": "https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-entity-types",
+  "last_verified": "2026-10-28",
+  "groups": {
+    "entity": {
+      "title": "Entity type",
+      "values": [
+        {
+          "value": 1,
+          "name": "STAGE_INSTANCE",
+          "description": null
+        },
+        {
+          "value": 2,
+          "name": "VOICE",
+          "description": null
+        },
+        {
+          "value": 3,
+          "name": "EXTERNAL",
+          "description": null
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Privacy level",
+      "values": [
+        {
+          "value": 2,
+          "name": "GUILD_ONLY",
+          "description": "the scheduled event is only accessible to guild members"
+        }
+      ]
+    },
+    "status": {
+      "title": "Status",
+      "values": [
+        {
+          "value": 1,
+          "name": "SCHEDULED",
+          "description": null,
+          "terminal": false
+        },
+        {
+          "value": 2,
+          "name": "ACTIVE",
+          "description": null,
+          "terminal": false
+        },
+        {
+          "value": 3,
+          "name": "COMPLETED",
+          "description": null,
+          "terminal": true
+        },
+        {
+          "value": 4,
+          "name": "CANCELED",
+          "description": null,
+          "terminal": true
+        }
+      ]
+    }
+  },
+  "status_transitions": [
+    {
+      "from": "SCHEDULED",
+      "to": "ACTIVE"
+    },
+    {
+      "from": "ACTIVE",
+      "to": "COMPLETED"
+    },
+    {
+      "from": "SCHEDULED",
+      "to": "CANCELED"
+    }
+  ],
+  "status_note": "Once status is set to COMPLETED or CANCELED, the status can no longer be updated."
+}
