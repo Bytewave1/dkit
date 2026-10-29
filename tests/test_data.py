@@ -3,12 +3,30 @@
 from __future__ import annotations
 
 import datetime as dt
+from importlib import resources
 
 import pytest
 
 from dkit.commands.intents import intent_flags
 from dkit.commands.perms import permission_flags
 from dkit.core import data
+
+
+def test_datasets_has_no_duplicates() -> None:
+    assert len(set(data.DATASETS)) == len(data.DATASETS)
+
+
+def test_every_data_file_is_registered() -> None:
+    files = {
+        entry.name.removesuffix(".json")
+        for entry in resources.files(data.DATA_PACKAGE).iterdir()
+        if entry.name.endswith(".json")
+    }
+    registered = set(data.DATASETS)
+    assert files == registered, (
+        f"files not in DATASETS: {sorted(files - registered)}; "
+        f"names in DATASETS without a file: {sorted(registered - files)}"
+    )
 
 
 @pytest.mark.parametrize("name", data.DATASETS)
