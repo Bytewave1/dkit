@@ -85,8 +85,10 @@ dkit/
 ├─ tests/                         pytest suite, one test module per command
 ├─ docs/                          extra documentation
 │  └─ ISSUES.md                   good-first-issue write-ups
-├─ .github/workflows/             continuous integration
-│  └─ ci.yml                      the CI matrix (lint, tests, packaging)
+├─ .github/                      GitHub configuration
+│  ├─ dependabot.yml             keeps the GitHub Actions versions up to date
+│  └─ workflows/                 continuous integration
+│     └─ ci.yml                  the CI matrix (lint, tests, packaging)
 ├─ pyproject.toml                 packaging, dev extras, ruff and pytest config
 ├─ MANIFEST.in                    extra files that ship in the sdist
 ├─ CONTRIBUTING.md                this guide
