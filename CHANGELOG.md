@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI now also tests on Python 3.14, and the package metadata lists the 3.14
   classifier (#75).
 
+### Fixed
+
+- Exit quietly with status 141 instead of printing a traceback when the output
+  pipe is closed, e.g. `dkit errors | head -1` (#51).
+
 ## [0.3.0] - 2026-10-28
 
 ### Added
@@ -53,10 +58,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `<#ID>`, `<@&ID>`) and Discord message links, labelling every decoded ID with
   what the input named; plain-ID text and `--json` output is unchanged (#42).
 
-### Fixed
-
-- Exit quietly with status 141 instead of printing a traceback when the output pipe is closed, e.g. `dkit errors | head -1` (#51).
-
 ## [0.2.0] - 2026-10-22
 
 ### Changed
@@ -66,8 +67,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   dependency, and fail the build if it drops below 100%. The report is published
   to the job summary. Also cover the remaining untested lines: empty `--perms`
   and timestamp input, and `python -m dkit` (@arvindkumar-ship-it, #12).
-
-
 
 ### Added
 
