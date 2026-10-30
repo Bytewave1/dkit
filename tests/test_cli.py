@@ -439,17 +439,25 @@ def test_a_closed_stdout_object_is_still_silenced(monkeypatch) -> None:
     class _Closed:
         encoding = "utf-8"
 
+        def __init__(self) -> None:
+            self.broken = False
+
         def isatty(self) -> bool:
             return False
 
         def write(self, _data: str) -> int:
+            self.broken = True
             raise BrokenPipeError()
 
         def flush(self) -> None:
             raise BrokenPipeError()
 
         def fileno(self) -> int:
-            raise ValueError("I/O operation on closed file")
+            # Python 3.14's argparse asks for the descriptor while the parser is
+            # built, before anything is written; only the later call must fail.
+            if self.broken:
+                raise ValueError("I/O operation on closed file")
+            return 7
 
     monkeypatch.setattr(sys, "stdout", _Closed())
     assert main(["intents", "--list"]) == 128 + 13
