@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   privacy levels and statuses by name or number, list or search a group, and
   show the valid status transitions with `--transitions`, with `--json` support
   (#71).
+- `dkit components` - look up Discord component types by number or name, with `--search` and `--list`, and `--json` support (#64).
 
 ### Changed
 
