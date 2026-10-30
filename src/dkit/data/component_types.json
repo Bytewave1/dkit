@@ -1,0 +1,147 @@
+{
+    "source": "https://github.com/discord/discord-api-docs/blob/main/developers/components/reference.mdx",
+    "source_rendered": "https://docs.discord.com/developers/components/reference",
+    "last_verified": "2026-10-24",
+    "types": [
+        {
+            "type": "1",
+            "name": "Action Row",
+            "description": "Container to display a row of interactive components",
+            "style": "Layout",
+            "usage": "Message"
+        },
+        {
+            "type": "2",
+            "name": "Button",
+            "description": "Button object",
+            "style": "Interactive",
+            "usage": "Message"
+        },
+        {
+            "type": "3",
+            "name": "String Select",
+            "description": "Select menu for picking from defined text options",
+            "style": "Interactive",
+            "usage": "Message, Modal"
+        },
+        {
+            "type": "4",
+            "name": "Text Input",
+            "description": "Text input object",
+            "style": "Interactive",
+            "usage": "Modal"
+        },
+        {
+            "type": "5",
+            "name": "User Select",
+            "description": "Select menu for users",
+            "style": "Interactive",
+            "usage": "Message, Modal"
+        },
+        {
+            "type": "6",
+            "name": "Role Select",
+            "description": "Select menu for roles",
+            "style": "Interactive",
+            "usage": "Message, Modal"
+        },
+        {
+            "type": "7",
+            "name": "Mentionable Select",
+            "description": "Select menu for mentionables (users and roles)",
+            "style": "Interactive",
+            "usage": "Message, Modal"
+        },
+        {
+            "type": "8",
+            "name": "Channel Select",
+            "description": "Select menu for channels",
+            "style": "Interactive",
+            "usage": "Message, Modal"
+        },
+        {
+            "type": "9",
+            "name": "Section",
+            "description": "Container to display text alongside an accessory component",
+            "style": "Layout",
+            "usage": "Message"
+        },
+        {
+            "type": "10",
+            "name": "Text Display",
+            "description": "Markdown text",
+            "style": "Content",
+            "usage": "Message, Modal"
+        },
+        {
+            "type": "11",
+            "name": "Thumbnail",
+            "description": "Small image that can be used as an accessory",
+            "style": "Content",
+            "usage": "Message"
+        },
+        {
+            "type": "12",
+            "name": "Media Gallery",
+            "description": "Display images and other media",
+            "style": "Content",
+            "usage": "Message"
+        },
+        {
+            "type": "13",
+            "name": "File",
+            "description": "Displays an attached file",
+            "style": "Content",
+            "usage": "Message"
+        },
+        {
+            "type": "14",
+            "name": "Separator",
+            "description": "Component to add vertical padding between other components",
+            "style": "Layout",
+            "usage": "Message"
+        },
+        {
+            "type": "17",
+            "name": "Container",
+            "description": "Container that visually groups a set of components",
+            "style": "Layout",
+            "usage": "Message"
+        },
+        {
+            "type": "18",
+            "name": "Label",
+            "description": "Container associating a label and description with a component",
+            "style": "Layout",
+            "usage": "Modal"
+        },
+        {
+            "type": "19",
+            "name": "File Upload",
+            "description": "Component for uploading files",
+            "style": "Interactive",
+            "usage": "Modal"
+        },
+        {
+            "type": "21",
+            "name": "Radio Group",
+            "description": "Single-choice set of options",
+            "style": "Interactive",
+            "usage": "Modal"
+        },
+        {
+            "type": "22",
+            "name": "Checkbox Group",
+            "description": "Multi-selectable group of checkboxes",
+            "style": "Interactive",
+            "usage": "Modal"
+        },
+        {
+            "type": "23",
+            "name": "Checkbox",
+            "description": "Single checkbox for yes/no choice",
+            "style": "Interactive",
+            "usage": "Modal"
+        }
+    ]
+}
