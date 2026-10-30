@@ -52,6 +52,7 @@ dkit/
 │  │  ├─ channels.py              look up Discord channel types
 │  │  ├─ color.py                 convert colors between decimal, hex and RGB
 │  │  ├─ completion.py            print shell completion scripts and candidates
+│  │  ├─ components.py            look up Discord component types
 │  │  ├─ errors.py                look up Discord HTTP and JSON error codes
 │  │  ├─ flags.py                 decode user flags (profile badges) into names
 │  │  ├─ intents.py               translate gateway intent names and integers
@@ -73,6 +74,7 @@ dkit/
 │  │  └─ suggest.py               "did you mean ...?"
 │  └─ data/                       the bundled JSON data files
 │     ├─ channel_types.json       Discord channel types (value and description)
+│     ├─ component_types.json     Discord message component types, styles and usage
 │     ├─ error_codes.json         Discord HTTP and JSON error codes
 │     ├─ intents.json             gateway intents and privileged flags
 │     ├─ locales.json             accepted locale codes and language names
