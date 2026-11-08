@@ -1,0 +1,138 @@
+{
+  "_comment": "Discord guild configuration levels from the official Guild resource. Values are plain integers, not bitfields. The age-restriction table has no descriptions.",
+  "source": "https://github.com/discord/discord-api-docs/blob/main/developers/resources/guild.mdx",
+  "source_rendered": "https://discord.com/developers/docs/resources/guild#guild-object-verification-level",
+  "last_verified": "2026-11-09",
+  "groups": {
+    "verification": {
+      "title": "Verification Level",
+      "values": [
+        {
+          "value": 0,
+          "name": "NONE",
+          "description": "unrestricted"
+        },
+        {
+          "value": 1,
+          "name": "LOW",
+          "description": "must have verified email on account"
+        },
+        {
+          "value": 2,
+          "name": "MEDIUM",
+          "description": "must be registered on Discord for longer than 5 minutes"
+        },
+        {
+          "value": 3,
+          "name": "HIGH",
+          "description": "must be a member of the server for longer than 10 minutes"
+        },
+        {
+          "value": 4,
+          "name": "VERY_HIGH",
+          "description": "must have a verified phone number"
+        }
+      ]
+    },
+    "notifications": {
+      "title": "Default Message Notification Level",
+      "values": [
+        {
+          "value": 0,
+          "name": "ALL_MESSAGES",
+          "description": "members will receive notifications for all messages by default"
+        },
+        {
+          "value": 1,
+          "name": "ONLY_MENTIONS",
+          "description": "members will receive notifications only for messages that @mention them by default"
+        }
+      ]
+    },
+    "content-filter": {
+      "title": "Explicit Content Filter Level",
+      "values": [
+        {
+          "value": 0,
+          "name": "DISABLED",
+          "description": "media content will not be scanned"
+        },
+        {
+          "value": 1,
+          "name": "MEMBERS_WITHOUT_ROLES",
+          "description": "media content sent by members without roles will be scanned"
+        },
+        {
+          "value": 2,
+          "name": "ALL_MEMBERS",
+          "description": "media content sent by all members will be scanned"
+        }
+      ]
+    },
+    "mfa": {
+      "title": "MFA Level",
+      "values": [
+        {
+          "value": 0,
+          "name": "NONE",
+          "description": "guild has no MFA/2FA requirement for moderation actions"
+        },
+        {
+          "value": 1,
+          "name": "ELEVATED",
+          "description": "guild has a 2FA requirement for moderation actions"
+        }
+      ]
+    },
+    "premium-tier": {
+      "title": "Premium Tier",
+      "values": [
+        {
+          "value": 0,
+          "name": "NONE",
+          "description": "guild has not unlocked any Server Boost perks"
+        },
+        {
+          "value": 1,
+          "name": "TIER_1",
+          "description": "guild has unlocked Server Boost level 1 perks"
+        },
+        {
+          "value": 2,
+          "name": "TIER_2",
+          "description": "guild has unlocked Server Boost level 2 perks"
+        },
+        {
+          "value": 3,
+          "name": "TIER_3",
+          "description": "guild has unlocked Server Boost level 3 perks"
+        }
+      ]
+    },
+    "age-restriction": {
+      "title": "Guild Age-Restriction Level",
+      "values": [
+        {
+          "value": 0,
+          "name": "DEFAULT",
+          "description": null
+        },
+        {
+          "value": 1,
+          "name": "EXPLICIT",
+          "description": null
+        },
+        {
+          "value": 2,
+          "name": "SAFE",
+          "description": null
+        },
+        {
+          "value": 3,
+          "name": "AGE_RESTRICTED",
+          "description": null
+        }
+      ]
+    }
+  }
+}

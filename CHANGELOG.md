@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   show the valid status transitions with `--transitions`, with `--json` support
   (#71).
 
+- `dkit guild-levels` - look up Discord guild verification, notification,
+  content filter, MFA, premium tier and age-restriction levels by name or
+  number, list or search a group, with `--json` support (#92).
+
 ### Changed
 
 - Make `dkit errors --search` case-insensitive (#73).
