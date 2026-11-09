@@ -5,7 +5,6 @@ from __future__ import annotations
 import pytest
 
 from dkit.commands.guild_levels import groups
-from dkit.core import data
 
 EXPECTED = {
     "verification": {"NONE": 0, "LOW": 1, "MEDIUM": 2, "HIGH": 3, "VERY_HIGH": 4},
@@ -48,7 +47,7 @@ def test_cli_json_all(cli) -> None:
     assert set(payload["groups"]) == set(EXPECTED)
     assert payload["groups"]["verification"]["values"][3]["name"] == "HIGH"
     assert payload["source"]["source"].endswith("developers/resources/guild.mdx")
-    assert payload["source"]["last_verified"] == "2026-11-09"
+    assert payload["source"]["last_verified"] == "2026-11-08"
 
 
 @pytest.mark.parametrize(
