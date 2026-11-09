@@ -58,9 +58,7 @@ def test_cli_json_all(cli) -> None:
         for name, number in values.items()
     ],
 )
-def test_lookup_by_name_and_number(
-    cli, group: str, value: str, name: str, number: int
-) -> None:
+def test_lookup_by_name_and_number(cli, group: str, value: str, name: str, number: int) -> None:
     by_name = cli("guild-levels", group, value)
     assert by_name.exit_code == 0
     assert f"Name         {name}" in by_name.stdout
@@ -86,12 +84,11 @@ def test_cli_lists_one_group_and_json(cli) -> None:
 def test_group_and_value_names_are_case_and_separator_insensitive(cli) -> None:
     assert "HIGH" in cli("guild-levels", "VERIFICATION", "high").stdout
     assert "TIER_2" in cli("guild-levels", "premium_tier", "tier-2").stdout
-    assert "AGE_RESTRICTED" in cli(
-        "guild-levels", "age_restriction", "age-restricted"
-    ).stdout
-    assert "MEMBERS_WITHOUT_ROLES" in cli(
-        "guild-levels", "content_filter", "members-without-roles"
-    ).stdout
+    assert "AGE_RESTRICTED" in cli("guild-levels", "age_restriction", "age-restricted").stdout
+    assert (
+        "MEMBERS_WITHOUT_ROLES"
+        in cli("guild-levels", "content_filter", "members-without-roles").stdout
+    )
 
 
 def test_numbers_overlap_between_groups(cli) -> None:
@@ -106,9 +103,7 @@ def test_search_matches_names_and_descriptions_case_insensitively(cli) -> None:
     result = cli("guild-levels", "verification", "--search", "PHONE")
     assert result.exit_code == 0
     assert "VERY_HIGH" in result.stdout
-    payload = cli(
-        "--json", "guild-levels", "content-filter", "--search", "without roles"
-    ).json
+    payload = cli("--json", "guild-levels", "content-filter", "--search", "without roles").json
     assert payload["mode"] == "search"
     assert payload["group"] == "content-filter"
     assert payload["query"] == "without roles"
