@@ -28,9 +28,7 @@ def did_you_mean(value: str, candidates: Iterable[str], *, limit: int = 3) -> li
     return matches[:limit]
 
 
-def suggestion_hint(
-    value: str, candidates: Iterable[str], *, limit: int = 3
-) -> str | None:
+def suggestion_hint(value: str, candidates: Iterable[str], *, limit: int = 3) -> str | None:
     """Format a ready-to-print 'did you mean' line, or ``None`` if nothing fits."""
     matches = did_you_mean(value, candidates, limit=limit)
     if not matches:
