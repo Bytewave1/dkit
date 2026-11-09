@@ -2,7 +2,7 @@
   "_comment": "Discord guild configuration levels from the official Guild resource. Values are plain integers, not bitfields. The age-restriction table has no descriptions.",
   "source": "https://github.com/discord/discord-api-docs/blob/main/developers/resources/guild.mdx",
   "source_rendered": "https://discord.com/developers/docs/resources/guild#guild-object-verification-level",
-  "last_verified": "2026-11-09",
+  "last_verified": "2026-11-08",
   "groups": {
     "verification": {
       "title": "Verification Level",
