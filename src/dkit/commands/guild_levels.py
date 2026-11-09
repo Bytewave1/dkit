@@ -147,6 +147,24 @@ def _matches(entry: dict[str, Any], query: str) -> bool:
     return needle in entry["name"].casefold() or needle in (entry["description"] or "").casefold()
 
 
+def _all(out: Printer) -> dict[str, Any]:
+    """Render every group."""
+    available = groups()
+    for group in available.values():
+        _render_values(out, group["title"], group["values"])
+    return {
+        "mode": "all",
+        "groups": {
+            key: {
+                "title": group["title"],
+                "values": [dict(entry) for entry in group["values"]],
+            }
+            for key, group in available.items()
+        },
+        "source": data.provenance("guild_levels"),
+    }
+
+
 def _render_one(out: Printer, title: str, entry: dict[str, Any]) -> None:
     """Render a single value."""
     out.heading(title)
