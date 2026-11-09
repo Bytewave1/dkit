@@ -59,6 +59,7 @@ dkit/
 │  │  ├─ locales.py               look up the locale codes Discord accepts
 │  │  ├─ perms.py                 translate permission integers and names
 │  │  ├─ scheduled_events.py      look up Discord guild scheduled event types
+│  │  ├─ guild_levels.py          look up Discord guild configuration levels
 │  │  ├─ scopes.py                look up Discord OAuth2 scopes
 │  │  ├─ snowflake.py             decode snowflake IDs, or build one from a date
 │  │  └─ timestamp.py             format a timestamp as a Discord <t:...> tag
@@ -79,6 +80,7 @@ dkit/
 │     ├─ oauth2.json              OAuth2 authorize URL and scopes
 │     ├─ permissions.json         bitwise permission flags
 │     ├─ scheduled_event_types.json  scheduled event entity types, privacy levels and statuses
+│     ├─ guild_levels.json           guild configuration level enums and descriptions
 │     ├─ snowflake.json           Discord epoch and snowflake bit layout
 │     ├─ timestamp_styles.json    <t:...> timestamp styles and examples
 │     └─ user_flags.json          user flags (profile badges)

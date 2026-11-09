@@ -118,6 +118,7 @@ positional arguments:
     locales    look up Discord locale codes
     color      convert a color between decimal, hex and RGB
     errors     look up discord error codes
+    guild-levels look up Discord guild configuration levels
 
 options:
   -h, --help   show this help message and exit
@@ -675,6 +676,44 @@ OAuth2 scopes matching 'voice' (3)
 An unknown scope name gets the same "did you mean" help as the other commands,
 and `dkit --json scopes` returns the full dataset entries with provenance.
 
+### `dkit guild-levels` — look up guild configuration levels
+
+Look up Discord guild verification, default notification, explicit content
+filter, MFA, premium tier and age-restriction levels. Each group must be named
+because their integer values overlap. Look up a value by its integer or name,
+list one group or every group, or search a group's names and descriptions:
+
+```console
+$ dkit guild-levels verification 3
+Verification Level
+  Name         HIGH
+  Value        3
+  Description  must be a member of the server for longer than 10 minutes
+
+$ dkit guild-levels premium-tier TIER_2
+Premium Tier
+  Name         TIER_2
+  Value        2
+  Description  guild has unlocked Server Boost level 2 perks
+
+$ dkit guild-levels content-filter 1
+Explicit Content Filter Level
+  Name         MEMBERS_WITHOUT_ROLES
+  Value        1
+  Description  media content sent by members without roles will be scanned
+
+$ dkit guild-levels verification --search phone
+Verification Level values matching 'phone' (1)
+   4  VERY_HIGH  must have a verified phone number
+
+$ dkit --json guild-levels mfa
+```
+
+Group names accept hyphens or underscores, and value names are
+case-insensitive with hyphens and underscores treated equivalently. Age
+restriction values have no descriptions in the official table. Unknown groups
+or values exit with code 2 and include a suggestion when one is available.
+
 ### `dkit scheduled-events` — scheduled event types, privacy levels and statuses
 
 Look up the enums of guild scheduled events: entity types, privacy levels and
@@ -854,6 +893,7 @@ No Discord constant is hard-coded in logic. They all live in
 | `locales.json` | The 32 locale codes and their language names | [reference#locales](https://discord.com/developers/docs/reference#locales) |
 | `channel_types.json` | The 13 channel types, integer values and descriptions | [resources/channel#channel-object-channel-types](https://discord.com/developers/docs/resources/channel#channel-object-channel-types) |
 | `scheduled_event_types.json` | Guild scheduled event entity types, privacy levels, statuses and the valid status transitions | [resources/guild-scheduled-event](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-entity-types) |
+| `guild_levels.json` | Guild verification, notification, content filter, MFA, premium tier and age-restriction levels | [resources/guild](https://discord.com/developers/docs/resources/guild) |
 
 Each file records a `source` URL and a `last_verified` date. Two details worth
 knowing, both faithful to the official tables:
