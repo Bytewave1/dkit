@@ -190,11 +190,11 @@ COMMAND = Command(
     add_arguments=add_arguments,
     run=run,
     epilog=(
-        "examples:\\n"
-        "  dkit guild-levels\\n"
-        "  dkit guild-levels verification 3\\n"
-        "  dkit guild-levels premium-tier TIER_2\\n"
-        "  dkit guild-levels verification --search phone\\n"
-        "  dkit --json guild-levels mfa\\n"
+        "examples:\n"
+        "  dkit guild-levels\n"
+        "  dkit guild-levels verification 3\n"
+        "  dkit guild-levels premium-tier TIER_2\n"
+        "  dkit guild-levels verification --search phone\n"
+        "  dkit --json guild-levels mfa\n"
     ),
 )
