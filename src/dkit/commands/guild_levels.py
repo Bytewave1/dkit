@@ -1,4 +1,4 @@
-"""dkit guild-levels - look up Discord guild configuration levels."""
+"""``dkit guild-levels`` - look up Discord guild configuration levels."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from dkit.core.parse import looks_like_int, normalise_name, parse_int
 from dkit.core.registry import Command
 from dkit.core.suggest import suggestion_hint
 
-DESCRIPTION = """\\
+DESCRIPTION = """\
 Look up Discord guild configuration levels: verification, default message
 notifications, explicit content filtering, MFA, premium tier and age restriction.
 The integers overlap between groups, so always name the group. Values can be
@@ -23,12 +23,12 @@ HINT_ALL = "run 'dkit guild-levels' to list every group"
 
 
 def groups() -> dict[str, dict[str, Any]]:
-    """The enum groups from dkit/data/guild_levels.json."""
+    """The enum groups from ``dkit/data/guild_levels.json``."""
     return dict(data.load("guild_levels")["groups"])
 
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
-    """Register the arguments of dkit guild-levels."""
+    """Register the arguments of ``dkit guild-levels``."""
     parser.add_argument(
         "group",
         metavar="GROUP",
@@ -49,7 +49,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
 
 def run(args: argparse.Namespace, out: Printer) -> dict[str, Any]:
-    """Execute dkit guild-levels."""
+    """Execute ``dkit guild-levels``."""
     if args.value is not None and args.search is not None:
         raise UsageError(
             "a value cannot be combined with --search",
