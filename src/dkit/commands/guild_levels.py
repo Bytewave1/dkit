@@ -114,7 +114,7 @@ def _resolve_group(raw: str) -> tuple[str, dict[str, Any]]:
     available = groups()
     key = raw.strip().casefold().replace("_", "-")
     if key not in available:
-        hint = suggestion_hint(key, list(available)) or HINT_ALL
+        hint = suggestion_hint(key, list(available), limit=1) or HINT_ALL
         raise UsageError(f"unknown guild level group: {raw!r}", hint=hint)
     return key, available[key]
 
@@ -137,7 +137,7 @@ def _lookup(key: str, title: str, values: list[dict[str, Any]], raw: str) -> dic
     names = [entry["name"] for entry in values]
     raise UsageError(
         f"unknown {title.lower()}: {raw!r}",
-        hint=suggestion_hint(norm, names) or hint,
+        hint=suggestion_hint(norm, names, limit=1) or hint,
     )
 
 
