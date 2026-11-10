@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `dkit cdn` - build Discord CDN image URLs offline from an ID and a hash,
+  for every endpoint type of the Image Formatting docs, with format and size
+  validation, the default-avatar index rule, the sticker GIF media base URL
+  and `--list` for the endpoint table (#89).
+
 - `dkit scheduled-events` - look up Discord guild scheduled event entity types,
   privacy levels and statuses by name or number, list or search a group, and
   show the valid status transitions with `--transitions`, with `--json` support
