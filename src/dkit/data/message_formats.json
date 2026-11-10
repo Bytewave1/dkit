@@ -1,0 +1,105 @@
+{
+  "_comment": "Message formatting: the Formats table and the Guild Navigation Types table from the Message Formatting section. 'table' mirrors the docs rows; 'templates' are the machine-usable spellings dkit builds from. Timestamps are listed for completeness but are built by dkit timestamp.",
+  "source": "https://github.com/discord/discord-api-docs/blob/main/developers/reference.mdx",
+  "source_rendered": "https://discord.com/developers/docs/reference#message-formatting",
+  "last_verified": "2026-11-11",
+  "table": [
+    {
+      "description": "User",
+      "syntax": "<@USER_ID>",
+      "example": "<@80351110224678912>"
+    },
+    {
+      "description": "User (deprecated)",
+      "syntax": "<@!USER_ID>",
+      "example": "<@!80351110224678912>",
+      "notes": [
+        "User mentions with an exclamation point are deprecated and should be handled like any other user mention; dkit does not generate them."
+      ]
+    },
+    {
+      "description": "Channel",
+      "syntax": "<#CHANNEL_ID>",
+      "example": "<#103735883630395392>"
+    },
+    {
+      "description": "Role",
+      "syntax": "<@&ROLE_ID>",
+      "example": "<@&165511591545143296>"
+    },
+    {
+      "description": "Game profile",
+      "syntax": "<@$GAME_ID>",
+      "example": "<@$1402418491272986635>",
+      "notes": [
+        "dkit does not build or decode game profile mentions."
+      ]
+    },
+    {
+      "description": "Slash command",
+      "syntax": "</NAME:COMMAND_ID>",
+      "example": "</airhorn:816437322781949972>"
+    },
+    {
+      "description": "Slash command with subcommand",
+      "syntax": "</NAME SUBCOMMAND:ID>",
+      "example": "</foo bar:123456789012345678>"
+    },
+    {
+      "description": "Slash command with subcommand group",
+      "syntax": "</NAME SUBCOMMAND_GROUP SUBCOMMAND:ID>",
+      "example": "</foo group bar:123456789012345678>"
+    },
+    {
+      "description": "Custom emoji",
+      "syntax": "<:NAME:ID>",
+      "example": "<:mmLol:216154654256398347>"
+    },
+    {
+      "description": "Animated custom emoji",
+      "syntax": "<a:NAME:ID>",
+      "example": "<a:b1nzy:392938283556143104>"
+    },
+    {
+      "description": "Unix timestamp",
+      "syntax": "<t:TIMESTAMP>",
+      "example": "<t:1618953630>",
+      "notes": [
+        "Built by dkit timestamp."
+      ]
+    },
+    {
+      "description": "Styled unix timestamp",
+      "syntax": "<t:TIMESTAMP:STYLE>",
+      "example": "<t:1618953630:d>",
+      "notes": [
+        "Built by dkit timestamp."
+      ]
+    },
+    {
+      "description": "Guild navigation",
+      "syntax": "<id:TYPE>",
+      "example": "<id:customize>",
+      "notes": [
+        "Types: customize, browse, guide, linked-roles; linked-roles also takes a role id, <id:linked-roles:ROLE_ID>."
+      ]
+    }
+  ],
+  "templates": {
+    "user": "<@{user_id}>",
+    "channel": "<#{channel_id}>",
+    "role": "<@&{role_id}>",
+    "command": "</{name}:{command_id}>",
+    "emoji": "<:{name}:{emoji_id}>",
+    "animated-emoji": "<a:{name}:{emoji_id}>",
+    "navigation": "<id:{navigation_type}>",
+    "linked-roles": "<id:linked-roles:{role_id}>"
+  },
+  "navigation_types": {
+    "customize": "Channel & Roles tab with Onboarding prompts",
+    "browse": "Browse Channels tab",
+    "guide": "Server Guide tab",
+    "linked-roles": "Linked Roles tab"
+  },
+  "notify_note": "Using the markdown for users or roles will mention the target(s), and notify them depending on the sender's permissions as well as the value of the allowed_mentions field when creating a message."
+}

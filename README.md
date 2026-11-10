@@ -582,6 +582,38 @@ error: color is above 0xFFFFFF (16777215): '16777216'
   Discord colors are 24-bit: 0 to 16777215
 ```
 
+### `dkit mention` — build Discord mention and formatting strings
+
+Build `<@ID>`, `<#ID>`, `<@&ID>`, `</name:ID>`, `<:name:ID>` and `<id:...>`
+from IDs and names. `dkit mention --list` shows the whole table from the
+Message Formatting docs:
+
+```console
+$ dkit mention user 80351110224678912
+Mention
+  Type         user
+  Mention      <@80351110224678912>
+
+$ dkit mention command "foo bar" 123456789012345678
+Mention
+  Type         command
+  Mention      </foo bar:123456789012345678>
+
+$ dkit mention emoji b1nzy 392938283556143104 --animated
+Mention
+  Type         animated-emoji
+  Mention      <a:b1nzy:392938283556143104>
+
+$ dkit mention navigation linked-roles 123456789012345678
+Mention
+  Type         navigation-linked-roles
+  Mention      <id:linked-roles:123456789012345678>
+  Target       Linked Roles tab
+```
+
+The deprecated `<@!ID>` form is documented but not generated. `dkit
+snowflake` decodes user, channel and role mentions back into IDs.
+
 ### `dkit channels` — Discord channel types
 
 Look up Discord channel types by integer value or name, or list every type:
