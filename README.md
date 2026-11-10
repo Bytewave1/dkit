@@ -110,23 +110,30 @@ An offline toolbox for Discord bot developers.
 
 positional arguments:
   <command>
-    snowflake  decode snowflake IDs, or build one from a date
-    perms      decode a permissions integer, or build one from names
-    invite     build or decode an OAuth2 invite URL for your bot
-    intents    convert gateway intent names to the integer and back
-    timestamp  format a timestamp as a Discord <t:...> tag
-    locales    look up Discord locale codes
-    color      convert a color between decimal, hex and RGB
-    errors     look up discord error codes
+    snowflake         decode snowflake IDs, or build one from a date
+    perms             decode a permissions integer, or build one from names
+    invite            build or decode an OAuth2 invite URL for your bot
+    intents           convert gateway intent names to the integer and back
+    timestamp         format a timestamp as a Discord <t:...> tag
+    locales           look up Discord locale codes
+    channels          look up Discord channel types
+    errors            look up Discord HTTP and JSON error codes
+    color             convert a color between decimal, hex and RGB
+    scopes            list and look up Discord OAuth2 scopes
+    completion        print an offline shell completion script
+    flags             decode a user's public_flags integer into badge names
+                      and back
+    scheduled-events  look up Discord scheduled event types, privacy levels
+                      and statuses
 
 options:
-  -h, --help   show this help message and exit
-  --version    print the version and exit
+  -h, --help          show this help message and exit
+  --version           print the version and exit
 
 global options:
-  --json       print machine-readable JSON instead of text
-  --no-color   disable ANSI colors (also honours the NO_COLOR environment
-               variable)
+  --json              print machine-readable JSON instead of text
+  --no-color          disable ANSI colors (also honours the NO_COLOR
+                      environment variable)
 
 Every command works entirely offline: dkit never performs network requests
 and never asks for a bot token.
@@ -853,6 +860,8 @@ No Discord constant is hard-coded in logic. They all live in
 | `timestamp_styles.json` | The nine `<t:...>` timestamp styles and their examples | [reference#message-formatting-timestamp-styles](https://discord.com/developers/docs/reference#message-formatting-timestamp-styles) |
 | `locales.json` | The 32 locale codes and their language names | [reference#locales](https://discord.com/developers/docs/reference#locales) |
 | `channel_types.json` | The 13 channel types, integer values and descriptions | [resources/channel#channel-object-channel-types](https://discord.com/developers/docs/resources/channel#channel-object-channel-types) |
+| `error_codes.json` | 12 HTTP codes and 245 JSON error codes | [source](https://github.com/discord/discord-api-docs/blob/main/developers/topics/opcodes-and-status-codes.mdx) · [rendered](https://discord.com/developers/docs/topics/opcodes-and-status-codes) |
+| `user_flags.json` | 14 user flags and their profile badge names | [source](https://github.com/discord/discord-api-docs/blob/main/developers/resources/user.mdx) · [rendered](https://discord.com/developers/docs/resources/user#user-object-user-flags) |
 | `scheduled_event_types.json` | Guild scheduled event entity types, privacy levels, statuses and the valid status transitions | [resources/guild-scheduled-event](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-entity-types) |
 
 Each file records a `source` URL and a `last_verified` date. Two details worth
