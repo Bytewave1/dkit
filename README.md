@@ -896,7 +896,7 @@ python -m pytest -q --cov
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) walks through adding a command and
   updating the data files.
-- [docs/ISSUES.md](docs/ISSUES.md) has eight ready-to-file "good first issue"
+- [docs/ISSUES.md](docs/ISSUES.md) tracks implemented and open contribution
   ideas if you want somewhere to start.
 
 Please keep the two ground rules: **no runtime dependencies**, and **no network

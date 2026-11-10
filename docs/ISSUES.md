@@ -1,8 +1,8 @@
 # Good first issues
 
-Eight self-contained ideas, ready to be turned into GitHub issues. Each one is
-scoped to a single pull request and follows the pattern already in the
-codebase, so none of them require redesigning anything.
+Eight self-contained ideas, some already implemented and others still open.
+Each one follows the pattern already in the codebase, so none of them require
+redesigning anything.
 
 Before starting one, read [CONTRIBUTING.md](../CONTRIBUTING.md): adding a
 command means adding one file in `src/dkit/commands/` and one line in
@@ -11,7 +11,9 @@ data file with a `source` and `last_verified` date.
 
 ---
 
-## 1. `dkit channels` — look up channel types
+## 1. `dkit channels` — look up channel types (done in #31)
+
+**Status:** Done in #31.
 
 **Labels:** `good first issue`, `enhancement`, `new command`
 
@@ -74,7 +76,9 @@ snowflake path.
 
 ---
 
-## 3. `dkit locales` — list Discord locales
+## 3. `dkit locales` — list Discord locales (done in #23)
+
+**Status:** Done in #23.
 
 **Labels:** `good first issue`, `enhancement`, `new command`, `data`
 
@@ -102,6 +106,8 @@ for a known locale and an unknown one.
 ---
 
 ## 4. `dkit overwrites` — resolve permission overwrites
+
+**Status:** Open in #4.
 
 **Labels:** `good first issue`, `enhancement`, `new command`
 
@@ -145,6 +151,8 @@ individually tested, and the `ADMINISTRATOR` short-circuit is covered.
 
 ## 5. `dkit update-data` — refresh the data files from the official docs
 
+**Status:** Open in #5.
+
 **Labels:** `enhancement`, `tooling`, `help wanted`
 
 Updating a data file is currently a careful manual diff (see
@@ -179,7 +187,9 @@ fixtures rather than live network calls.
 
 ---
 
-## 6. Shell completion for bash, zsh and fish
+## 6. Shell completion for bash, zsh and fish (done in #33)
+
+**Status:** Done in #33.
 
 **Labels:** `good first issue`, `enhancement`, `developer experience`
 
@@ -241,29 +251,30 @@ which platforms are tested.
 
 ## 8. Broaden the test suite
 
+**Status:** Partly done in #11, #22 and #32.
+
 **Labels:** `good first issue`, `testing`
 
-The suite covers the documented behaviour well (150 tests), but there are
-worthwhile gaps for someone who enjoys finding edge cases.
+The suite covers the documented behaviour well, but there are worthwhile gaps
+for someone who enjoys finding edge cases.
 
 **What to build**
 
 Pick any of these; each is a fine standalone pull request:
 
-- **Coverage reporting.** Add `pytest-cov` to the `dev` extra, a `--cov=dkit`
-  invocation in CI, and a coverage badge. Then fill whatever it shows as
-  uncovered.
-- **Property-based round trips.** For any random integer, `value → names →
-  value` must be the identity once unknown bits are masked out
-  (`value & FlagSet.mask`). Hypothesis would be a dev-only dependency.
-- **Snowflake boundaries.** `0`, `2**64 - 1`, `2**64` (must be rejected), the
-  exact epoch instant, and a leap-second-adjacent timestamp.
+- **Coverage reporting.** CI measures coverage and reports it in the job
+  summary (#32); a coverage badge remains an idea.
+- **Property-based round trips.** Implemented with Hypothesis for permissions,
+  intents and user flags (#22).
+- **Snowflake boundaries.** Zero, the 64-bit limits and the epoch are tested;
+  add a leap-second-adjacent timestamp.
 - **Unicode and whitespace input.** Full-width digits, a non-breaking space
-  inside a name list, and a trailing newline from `xargs`.
-- **`--json` schema stability.** Assert the exact key set of each payload so an
-  accidental rename is caught as a breaking change.
-- **Help text.** Assert every command's `--help` lists its examples, so the
-  epilogs cannot silently rot.
+  inside a name list, and a trailing newline from `xargs` are tested (#11).
+- **`--json` schema stability.** Exact key sets are tested for five commands
+  (#11); extend coverage to the other commands.
+- **Help text.** Example sections are checked for every registered command,
+  and rendered examples for five commands (#11); extend the rendered-help
+  checks to the other commands.
 
 **Done when** the new tests pass and genuinely fail if the behaviour they
 describe is broken — please verify that by temporarily breaking it.
