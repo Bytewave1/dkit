@@ -582,6 +582,38 @@ error: color is above 0xFFFFFF (16777215): '16777216'
   Discord colors are 24-bit: 0 to 16777215
 ```
 
+### `dkit cdn` — build Discord CDN image URLs offline
+
+Build a CDN image URL from an ID and a hash, for every endpoint type in the
+Image Formatting docs. `dkit cdn --list` shows the full table:
+
+```console
+$ dkit cdn avatar 80351110224678912 a_1269e74af4df7417b13759eae50c83dc --format webp --size 256
+CDN URL
+  Type         avatar
+  URL          https://cdn.discordapp.com/avatars/80351110224678912/a_1269e74af4df7417b13759eae50c83dc.webp?size=256
+
+$ dkit cdn default-avatar 80351110224678912
+CDN URL
+  Type         default-avatar
+  URL          https://cdn.discordapp.com/embed/avatars/5.png
+  Index        5  ((user_id >> 22) % 6)
+
+$ dkit cdn sticker 813248342119698674 --format gif
+CDN URL
+  Type         sticker
+  URL          https://media.discordapp.net/stickers/813248342119698674.gif
+
+$ dkit cdn guild-splash 123456789012345678 abc123 --format gif
+error: guild-splash does not support gif: supported formats are png, jpeg, webp
+  run 'dkit cdn --list' for the endpoint table
+```
+
+`--size` must be a power of two between 16 and 4096; the docs ignore it for
+default avatars and stickers. `--animated` adds the documented
+`?animated=true` to animated WebP. With `--json`, `default-avatar` also
+returns the computed index and its rule.
+
 ### `dkit channels` — Discord channel types
 
 Look up Discord channel types by integer value or name, or list every type:

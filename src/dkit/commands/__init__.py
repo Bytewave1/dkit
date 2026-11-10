@@ -8,6 +8,7 @@ To add a command, drop a module next to this one that exposes a
 from __future__ import annotations
 
 from dkit.commands import (
+    cdn,
     channels,
     color,
     completion,
@@ -36,6 +37,7 @@ COMMANDS: tuple[Command, ...] = (
     errors.COMMAND,
     color.COMMAND,
     scopes.COMMAND,
+    cdn.COMMAND,
     completion.COMMAND,
     flags.COMMAND,
     scheduled_events.COMMAND,

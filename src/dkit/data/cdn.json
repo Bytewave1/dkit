@@ -1,0 +1,185 @@
+{
+  "_comment": "Discord CDN image endpoints: the endpoint table, the image formats and the size rule. Paths are the documented templates; the format is the extension at the end of the URL. 'gif' marks endpoints whose hash can begin with a_ (animated). The store-asset path is stored without an extension because the docs list none.",
+  "source": "https://github.com/discord/discord-api-docs/blob/main/developers/reference.mdx",
+  "source_rendered": "https://discord.com/developers/docs/reference#image-formatting",
+  "last_verified": "2026-11-10",
+  "base_url": "https://cdn.discordapp.com/",
+  "sticker_gif_base_url": "https://media.discordapp.net/",
+  "formats": {
+    "png": ".png",
+    "jpeg": ".jpg",
+    "webp": ".webp",
+    "gif": ".gif",
+    "lottie": ".json"
+  },
+  "sizes": {
+    "min": 16,
+    "max": 4096,
+    "rule": "any power of two between 16 and 4096"
+  },
+  "endpoints": [
+    {
+      "type": "custom-emoji",
+      "args": ["emoji_id", "hash"],
+      "path": "emojis/{emoji_id}/{hash}.png",
+      "formats": ["png", "jpeg", "webp", "gif"],
+      "gif": true,
+      "notes": ["WebP is the recommended format for custom emojis; WebP and AVIF uploads must be requested as WebP."]
+    },
+    {
+      "type": "guild-icon",
+      "args": ["guild_id", "hash"],
+      "path": "icons/{guild_id}/{hash}.png",
+      "formats": ["png", "jpeg", "webp", "gif"],
+      "gif": true
+    },
+    {
+      "type": "guild-splash",
+      "args": ["guild_id", "hash"],
+      "path": "splashes/{guild_id}/{hash}.png",
+      "formats": ["png", "jpeg", "webp"],
+      "gif": false
+    },
+    {
+      "type": "guild-discovery-splash",
+      "args": ["guild_id", "hash"],
+      "path": "discovery-splashes/{guild_id}/{hash}.png",
+      "formats": ["png", "jpeg", "webp"],
+      "gif": false
+    },
+    {
+      "type": "guild-banner",
+      "args": ["guild_id", "hash"],
+      "path": "banners/{guild_id}/{hash}.png",
+      "formats": ["png", "jpeg", "webp", "gif"],
+      "gif": true
+    },
+    {
+      "type": "user-banner",
+      "args": ["user_id", "hash"],
+      "path": "banners/{user_id}/{hash}.png",
+      "formats": ["png", "jpeg", "webp", "gif"],
+      "gif": true
+    },
+    {
+      "type": "default-avatar",
+      "args": ["user_id"],
+      "path": "embed/avatars/{index}.png",
+      "formats": ["png"],
+      "gif": false,
+      "size_ignored": true,
+      "notes": [
+        "index is (user_id >> 22) % 6 for users on the new username system and discriminator % 5 for legacy users.",
+        "The size querystring is ignored for default avatars."
+      ]
+    },
+    {
+      "type": "avatar",
+      "args": ["user_id", "hash"],
+      "path": "avatars/{user_id}/{hash}.png",
+      "formats": ["png", "jpeg", "webp", "gif"],
+      "gif": true
+    },
+    {
+      "type": "member-avatar",
+      "args": ["guild_id", "user_id", "hash"],
+      "path": "guilds/{guild_id}/users/{user_id}/avatars/{hash}.png",
+      "formats": ["png", "jpeg", "webp", "gif"],
+      "gif": true
+    },
+    {
+      "type": "avatar-decoration",
+      "args": ["hash"],
+      "path": "avatar-decoration-presets/{hash}.png",
+      "formats": ["png"],
+      "gif": false
+    },
+    {
+      "type": "app-icon",
+      "args": ["application_id", "hash"],
+      "path": "app-icons/{application_id}/{hash}.png",
+      "formats": ["png", "jpeg", "webp"],
+      "gif": false
+    },
+    {
+      "type": "app-cover",
+      "args": ["application_id", "hash"],
+      "path": "app-icons/{application_id}/{hash}.png",
+      "formats": ["png", "jpeg", "webp"],
+      "gif": false,
+      "notes": ["Same path as app-icon; the second value is the cover_image hash."]
+    },
+    {
+      "type": "app-asset",
+      "args": ["application_id", "hash"],
+      "path": "app-assets/{application_id}/{hash}.png",
+      "formats": ["png", "jpeg", "webp"],
+      "gif": false
+    },
+    {
+      "type": "achievement-icon",
+      "args": ["application_id", "achievement_id", "hash"],
+      "path": "app-assets/{application_id}/achievements/{achievement_id}/icons/{hash}.png",
+      "formats": ["png", "jpeg", "webp"],
+      "gif": false
+    },
+    {
+      "type": "store-asset",
+      "args": ["application_id", "hash"],
+      "path": "app-assets/{application_id}/store/{hash}",
+      "formats": ["png", "jpeg", "webp"],
+      "gif": false,
+      "no_extension": true,
+      "notes": ["The docs list no file extension for this path, so dkit appends none."]
+    },
+    {
+      "type": "sticker-pack-banner",
+      "args": ["hash"],
+      "path": "app-assets/710982414301790216/store/{hash}.png",
+      "formats": ["png", "jpeg", "webp"],
+      "gif": false,
+      "notes": ["The application ID is fixed in the docs; the only argument is the banner asset hash."]
+    },
+    {
+      "type": "team-icon",
+      "args": ["team_id", "hash"],
+      "path": "team-icons/{team_id}/{hash}.png",
+      "formats": ["png", "jpeg", "webp"],
+      "gif": false
+    },
+    {
+      "type": "sticker",
+      "args": ["sticker_id"],
+      "path": "stickers/{sticker_id}.png",
+      "formats": ["png", "lottie", "gif"],
+      "gif": false,
+      "size_ignored": true,
+      "notes": [
+        "Which formats are available depends on the sticker's format_type: PNG and APNG serve as PNG, GIF as GIF, LOTTIE as Lottie.",
+        "Sticker GIFs do not use the CDN base URL; they are served from https://media.discordapp.net/stickers/<sticker_id>.gif.",
+        "The size querystring is ignored for stickers."
+      ]
+    },
+    {
+      "type": "role-icon",
+      "args": ["role_id", "hash"],
+      "path": "role-icons/{role_id}/{hash}.png",
+      "formats": ["png", "jpeg", "webp"],
+      "gif": false
+    },
+    {
+      "type": "guild-event-cover",
+      "args": ["scheduled_event_id", "hash"],
+      "path": "guild-events/{scheduled_event_id}/{hash}.png",
+      "formats": ["png", "jpeg", "webp"],
+      "gif": false
+    },
+    {
+      "type": "guild-tag-badge",
+      "args": ["guild_id", "hash"],
+      "path": "guild-tag-badges/{guild_id}/{hash}.png",
+      "formats": ["png", "jpeg", "webp"],
+      "gif": false
+    }
+  ]
+}
