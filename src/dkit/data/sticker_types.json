@@ -1,0 +1,48 @@
+{
+  "_comment": "Discord sticker types and sticker format types from developers/resources/sticker.mdx. Values are plain integers, not bitfields.",
+  "source": "https://github.com/discord/discord-api-docs/blob/main/developers/resources/sticker.mdx",
+  "source_rendered": "https://discord.com/developers/docs/resources/sticker#sticker-object-sticker-types",
+  "last_verified": "2026-11-14",
+  "groups": {
+    "type": {
+      "title": "Sticker type",
+      "values": [
+        {
+          "value": 1,
+          "name": "STANDARD",
+          "description": "an official sticker in a pack"
+        },
+        {
+          "value": 2,
+          "name": "GUILD",
+          "description": "a sticker uploaded to a guild for the guild's members"
+        }
+      ]
+    },
+    "format": {
+      "title": "Sticker format type",
+      "values": [
+        {
+          "value": 1,
+          "name": "PNG",
+          "description": null
+        },
+        {
+          "value": 2,
+          "name": "APNG",
+          "description": null
+        },
+        {
+          "value": 3,
+          "name": "LOTTIE",
+          "description": null
+        },
+        {
+          "value": 4,
+          "name": "GIF",
+          "description": null
+        }
+      ]
+    }
+  }
+}

@@ -721,6 +721,39 @@ error: unknown status integer: '9'
   run 'dkit scheduled-events status' to list the values of this group
 ```
 
+### `dkit stickers` — sticker types and format types
+
+Look up Discord sticker enums: sticker types and sticker format types.
+Because integers overlap between groups (1 is STANDARD and PNG), the group
+must always be named: `type` or `format`. Look up by name or number, list
+a group, or search a group by name and description:
+
+```console
+$ dkit stickers format 3
+Sticker format type
+  Name         LOTTIE
+  Value        3
+
+$ dkit stickers type GUILD
+Sticker type
+  Name         GUILD
+  Value        2
+  Description  a sticker uploaded to a guild for the guild's members
+
+$ dkit stickers format --search png
+Sticker format type values matching 'png' (2)
+   1  PNG
+   2  APNG
+```
+
+Unknown groups or values exit with code 2 and a hint:
+
+```console
+$ dkit stickers format 9
+error: unknown sticker format type integer: '9'
+  run 'dkit stickers format' to list the values of this group
+```
+
 ### JSON output
 
 ```console
@@ -854,6 +887,7 @@ No Discord constant is hard-coded in logic. They all live in
 | `locales.json` | The 32 locale codes and their language names | [reference#locales](https://discord.com/developers/docs/reference#locales) |
 | `channel_types.json` | The 13 channel types, integer values and descriptions | [resources/channel#channel-object-channel-types](https://discord.com/developers/docs/resources/channel#channel-object-channel-types) |
 | `scheduled_event_types.json` | Guild scheduled event entity types, privacy levels, statuses and the valid status transitions | [resources/guild-scheduled-event](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-entity-types) |
+| `sticker_types.json` | Sticker types and sticker format types | [resources/sticker](https://discord.com/developers/docs/resources/sticker#sticker-object-sticker-types) |
 
 Each file records a `source` URL and a `last_verified` date. Two details worth
 knowing, both faithful to the official tables:

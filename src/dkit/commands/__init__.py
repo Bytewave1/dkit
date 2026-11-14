@@ -20,6 +20,7 @@ from dkit.commands import (
     scheduled_events,
     scopes,
     snowflake,
+    stickers,
     timestamp,
 )
 from dkit.core.registry import Command
@@ -39,6 +40,7 @@ COMMANDS: tuple[Command, ...] = (
     completion.COMMAND,
     flags.COMMAND,
     scheduled_events.COMMAND,
+    stickers.COMMAND,
 )
 
 __all__ = ["COMMANDS"]
