@@ -28,6 +28,7 @@ DATASETS = (
     "scheduled_event_types",
     "component_types",
     "guild_levels",
+    "sticker_types",
 )
 
 
