@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add GitHub issue forms and a pull request template (#37).
+
 - `dkit scheduled-events` - look up Discord guild scheduled event entity types,
   privacy levels and statuses by name or number, list or search a group, and
   show the valid status transitions with `--transitions`, with `--json` support
