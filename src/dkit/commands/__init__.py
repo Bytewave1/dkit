@@ -11,6 +11,7 @@ from dkit.commands import (
     channels,
     color,
     completion,
+    components,
     errors,
     flags,
     guild_levels,

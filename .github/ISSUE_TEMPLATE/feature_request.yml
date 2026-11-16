@@ -1,0 +1,31 @@
+name: Feature request
+description: Suggest an improvement or a new capability.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: "Tell us what you are trying to do and how dkit could help."
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the task or frustration behind the request.
+      placeholder: "I need a way to..."
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example command and output
+      description: Show how you imagine using the feature and what it might return.
+      render: shell
+    validations:
+      required: false
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Any alternatives or details that might help.
+    validations:
+      required: false

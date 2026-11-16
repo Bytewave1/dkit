@@ -261,6 +261,56 @@ $ dkit snowflake --from-date 2016-04-30T11:18:25Z
 Timestamps are ISO-8601. A trailing `Z` is accepted, an explicit offset such as
 `+02:00` is respected, and a timestamp without an offset is read as UTC.
 
+### `dkit components` - Component types
+
+List, search, or look up Discord component types.
+
+#### List all component types
+
+```console
+dkit components --list
+
+Component types (20)
+   1  Action Row          Container to display a row of interactive components
+   2  Button              Button object
+   3  String Select       Select menu for picking from defined text options
+   ...
+```
+
+#### Look up a component type
+
+```console
+dkit components 2
+
+Component type
+  Type         2
+  Name         Button
+  Description  Button object
+  Style        Interactive
+  Usage        Message
+```
+
+You can also look up a component by name:
+
+```console
+dkit components Button
+```
+
+#### Search component types
+
+Search matches type, name, description, style and usage.
+
+```console
+dkit components --search 18
+
+Component types (1)
+  18  Label  Container associating a label and description with a component
+```
+
+```console
+dkit components --search Interactive
+```
+
 ### `dkit perms` — permissions integer ↔ names
 
 ```console
@@ -936,7 +986,7 @@ python -m pytest -q --cov
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) walks through adding a command and
   updating the data files.
-- [docs/ISSUES.md](docs/ISSUES.md) has eight ready-to-file "good first issue"
+- [docs/ISSUES.md](docs/ISSUES.md) tracks implemented and open contribution
   ideas if you want somewhere to start.
 
 Please keep the two ground rules: **no runtime dependencies**, and **no network
