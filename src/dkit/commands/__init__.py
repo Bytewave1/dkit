@@ -41,6 +41,7 @@ COMMANDS: tuple[Command, ...] = (
     completion.COMMAND,
     flags.COMMAND,
     scheduled_events.COMMAND,
+    components.COMMAND,
     guild_levels.COMMAND,
 )
 
