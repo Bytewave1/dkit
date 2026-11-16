@@ -886,6 +886,7 @@ No Discord constant is hard-coded in logic. They all live in
 | `locales.json` | The 32 locale codes and their language names | [reference#locales](https://discord.com/developers/docs/reference#locales) |
 | `channel_types.json` | The 13 channel types, integer values and descriptions | [resources/channel#channel-object-channel-types](https://discord.com/developers/docs/resources/channel#channel-object-channel-types) |
 | `scheduled_event_types.json` | Guild scheduled event entity types, privacy levels, statuses and the valid status transitions | [resources/guild-scheduled-event](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-entity-types) |
+| `cdn.json` | The 22 CDN image endpoints, their formats and the size rule | [source](https://github.com/discord/discord-api-docs/blob/main/developers/reference.mdx) · [rendered](https://discord.com/developers/docs/reference#image-formatting) |
 
 Each file records a `source` URL and a `last_verified` date. Two details worth
 knowing, both faithful to the official tables:

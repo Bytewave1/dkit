@@ -14,11 +14,12 @@ from dkit.core import data
 def test_endpoint_table_matches_the_docs(cli) -> None:
     payload = cli("--json", "cdn", "--list").json
     assert payload["mode"] == "list"
-    assert payload["count"] == len(endpoints()) == 21
+    assert payload["count"] == len(endpoints()) == 22
     types = [entry["type"] for entry in payload["endpoints"]]
     assert "avatar" in types
     assert "default-avatar" in types
     assert "sticker" in types
+    assert "member-banner" in types
     assert payload["source"]["last_verified"] == "2026-11-10"
 
 
@@ -177,6 +178,15 @@ def test_member_avatar_takes_three_arguments() -> None:
     assert payload["url"] == "https://cdn.discordapp.com/guilds/111/users/222/avatars/abc123.png"
     with pytest.raises(Exception, match="takes 3 arguments"):
         build_url("member-avatar", ["111", "abc123"])
+
+
+def test_member_banner_takes_three_arguments_and_may_be_animated() -> None:
+    payload = build_url("member-banner", ["111", "222", "a_abc123"], format_name="gif")
+    assert payload["url"] == "https://cdn.discordapp.com/guilds/111/users/222/banners/a_abc123.gif"
+    payload = build_url("member-banner", ["111", "222", "abc123"])
+    assert payload["url"] == "https://cdn.discordapp.com/guilds/111/users/222/banners/abc123.png"
+    with pytest.raises(Exception, match="takes 3 arguments"):
+        build_url("member-banner", ["111", "abc123"])
 
 
 def test_ids_go_through_snowflake_parsing() -> None:
