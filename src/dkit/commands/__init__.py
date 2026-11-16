@@ -11,6 +11,7 @@ from dkit.commands import (
     channels,
     color,
     completion,
+    components,
     errors,
     flags,
     intents,
@@ -39,6 +40,7 @@ COMMANDS: tuple[Command, ...] = (
     completion.COMMAND,
     flags.COMMAND,
     scheduled_events.COMMAND,
+    components.COMMAND,
 )
 
 __all__ = ["COMMANDS"]

@@ -26,6 +26,7 @@ DATASETS = (
     "user_flags",
     "error_codes",
     "scheduled_event_types",
+    "component_types",
 )
 
 

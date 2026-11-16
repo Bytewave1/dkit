@@ -118,6 +118,7 @@ positional arguments:
     locales    look up Discord locale codes
     color      convert a color between decimal, hex and RGB
     errors     look up discord error codes
+    components look up Discord component types
 
 options:
   -h, --help   show this help message and exit
@@ -259,6 +260,56 @@ $ dkit snowflake --from-date 2016-04-30T11:18:25Z
 
 Timestamps are ISO-8601. A trailing `Z` is accepted, an explicit offset such as
 `+02:00` is respected, and a timestamp without an offset is read as UTC.
+
+### `dkit components` - Component types
+
+List, search, or look up Discord component types.
+
+#### List all component types
+
+```console
+dkit components --list
+
+Component types (20)
+   1  Action Row          Container to display a row of interactive components
+   2  Button              Button object
+   3  String Select       Select menu for picking from defined text options
+   ...
+```
+
+#### Look up a component type
+
+```console
+dkit components 2
+
+Component type
+  Type         2
+  Name         Button
+  Description  Button object
+  Style        Interactive
+  Usage        Message
+```
+
+You can also look up a component by name:
+
+```console
+dkit components Button
+```
+
+#### Search component types
+
+Search matches type, name, description, style and usage.
+
+```console
+dkit components --search 18
+
+Component types (1)
+  18  Label  Container associating a label and description with a component
+```
+
+```console
+dkit components --search Interactive
+```
 
 ### `dkit perms` — permissions integer ↔ names
 
@@ -854,6 +905,7 @@ No Discord constant is hard-coded in logic. They all live in
 | `locales.json` | The 32 locale codes and their language names | [reference#locales](https://discord.com/developers/docs/reference#locales) |
 | `channel_types.json` | The 13 channel types, integer values and descriptions | [resources/channel#channel-object-channel-types](https://discord.com/developers/docs/resources/channel#channel-object-channel-types) |
 | `scheduled_event_types.json` | Guild scheduled event entity types, privacy levels, statuses and the valid status transitions | [resources/guild-scheduled-event](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-entity-types) |
+| `component_types.json` | The 20 component types, styles, usage and descriptions | [developers/components/reference](https://docs.discord.com/developers/components/reference) |
 
 Each file records a `source` URL and a `last_verified` date. Two details worth
 knowing, both faithful to the official tables:
