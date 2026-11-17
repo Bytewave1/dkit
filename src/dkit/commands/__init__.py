@@ -14,6 +14,7 @@ from dkit.commands import (
     components,
     errors,
     flags,
+    guild_levels,
     intents,
     invite,
     locales,
@@ -41,6 +42,7 @@ COMMANDS: tuple[Command, ...] = (
     flags.COMMAND,
     scheduled_events.COMMAND,
     components.COMMAND,
+    guild_levels.COMMAND,
 )
 
 __all__ = ["COMMANDS"]

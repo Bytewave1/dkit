@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (#71).
 - `dkit components` - look up Discord component types by number or name, with `--search` and `--list`, and `--json` support (#64).
 
+- `dkit guild-levels` - look up Discord guild verification, notification,
+  content filter, MFA, premium tier and age-restriction levels by name or
+  number, list or search a group, with `--json` support (#92).
+
 ### Changed
 
 - Make `dkit errors --search` case-insensitive (#73).

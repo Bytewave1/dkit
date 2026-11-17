@@ -27,6 +27,7 @@ DATASETS = (
     "error_codes",
     "scheduled_event_types",
     "component_types",
+    "guild_levels",
 )
 
 
